@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/>
+    <title>MEMORIES - K5A8 SKY</title>
+    
+    <!-- PWA Setup -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#87CEEB">
+    <link rel="apple-touch-icon" href="Images/logo.jpg">
+    <link href="Images/logo.jpg" rel="icon" type="image/jpg"/>
+
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* --- COPY STYLE TỪ INDEX.HTML (SKY THEME) --- */
+        :root {
+            --primary-color: #00BFFF;
+            --text-main: #01579B;
+            --text-sub: #0277bd;
+            --glass-bg: rgba(255, 255, 255, 0.4);
+            --glass-border: rgba(255, 255, 255, 0.8);
+            --shadow: 0 10px 30px rgba(135, 206, 235, 0.4);
+            --safe-area-top: env(safe-area-inset-top);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background: linear-gradient(180deg, #87CEEB 0%, #E0F7FA 100%);
+            color: var(--text-main);
+            overflow-x: hidden;
+            padding-bottom: 100px;
+            min-height: 100vh;
+        }
+
+        /* --- CLOUDS BACKGROUND --- */
+        .cloud-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1; overflow: hidden; }
+        .cloud { position: absolute; background: #fff; border-radius: 100px; opacity: 0.8; filter: blur(5px); animation: floatCloud linear infinite; }
+        .cloud::after, .cloud::before { content: ''; position: absolute; background: inherit; border-radius: 50%; }
+        .cloud::after { width: 40%; height: 100%; top: -60%; left: 30%; }
+        .cloud::before { width: 30%; height: 80%; top: -40%; left: 60%; }
+        .c1 { width: 120px; height: 40px; top: 10%; left: -150px; animation-duration: 25s; }
+        .c2 { width: 180px; height: 60px; top: 25%; left: -200px; animation-duration: 35s; animation-delay: 5s; opacity: 0.6; }
+        .c3 { width: 100px; height: 35px; top: 60%; left: -120px; animation-duration: 20s; animation-delay: 2s; }
+        @keyframes floatCloud { 0% { transform: translateX(0); } 100% { transform: translateX(120vw); } }
+
+        /* --- NAVIGATION --- */
+        nav {
+            position: fixed; top: 0; width: 100%; z-index: 1000;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            border-bottom: 1px solid rgba(255,255,255,0.5);
+            padding: 15px 20px; padding-top: max(15px, var(--safe-area-top));
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 4px 20px rgba(135, 206, 235, 0.2);
+        }
+        .nav-logo { font-family: 'Baloo 2', cursive; font-size: 26px; font-weight: 800; color: var(--primary-color); text-shadow: 2px 2px 0px #fff; }
+        .menu-toggle { font-size: 26px; color: var(--primary-color); cursor: pointer; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: #fff; box-shadow: 0 4px 10px rgba(135, 206, 235, 0.3); }
+
+        .nav-links {
+            position: fixed; top: 0; right: -100%; width: 280px; height: 100vh;
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(30px);
+            display: flex; flex-direction: column; padding-top: 100px; gap: 10px;
+            transition: 0.4s; z-index: 999; box-shadow: -10px 0 30px rgba(0,0,0,0.05);
+        }
+        .nav-links.active { right: 0; }
+        .nav-links a { padding: 15px 25px; margin: 0 15px; border-radius: 15px; font-size: 16px; font-weight: 700; color: var(--text-main); text-decoration: none; display: flex; align-items: center; gap: 15px; transition: 0.3s; }
+        .nav-links a:hover { background: #E1F5FE; color: var(--primary-color); }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.5); z-index: 998; opacity: 0; visibility: hidden; transition: 0.5s; backdrop-filter: blur(3px); }
+        .overlay.active { opacity: 1; visibility: visible; }
+
+        /* --- HERO --- */
+        .page-header {
+            margin-top: 80px; text-align: center; padding: 20px;
+        }
+        .page-title {
+            font-family: 'Baloo 2', cursive; font-size: 40px; color: #fff;
+            text-shadow: 0 4px 10px rgba(0, 191, 255, 0.5); margin-bottom: 10px;
+        }
+
+        /* --- NEWS GRID (UPDATED) --- */
+        .news-container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .news-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;
+        }
+
+        .news-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 2px solid #fff; border-radius: 25px; overflow: hidden;
+            box-shadow: var(--shadow); transition: transform 0.3s;
+            display: flex; flex-direction: column; position: relative;
+        }
+        
+        .news-img-wrapper { height: 200px; overflow: hidden; position: relative; }
+        .news-card img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
+        .news-card:hover img { transform: scale(1.1); }
+        
+        .news-content { padding: 20px; flex-grow: 1; display: flex; flex-direction: column; }
+        .news-date { 
+            position: absolute; top: 15px; right: 15px; 
+            background: rgba(255,255,255,0.9); padding: 5px 12px; 
+            border-radius: 20px; font-size: 12px; font-weight: 700; color: var(--primary-color);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .news-card h3 { font-family: 'Baloo 2', cursive; font-size: 20px; color: var(--text-main); margin-bottom: 10px; line-height: 1.3; }
+        .news-card p { font-size: 14px; color: var(--text-sub); line-height: 1.6; margin-bottom: 20px; flex-grow: 1; }
+
+        .read-more {
+            display: inline-block; text-align: center; padding: 10px 20px;
+            background: #fff; color: var(--primary-color); text-decoration: none;
+            border-radius: 25px; font-weight: 700; border: 2px solid #fff;
+            box-shadow: 0 4px 10px rgba(135, 206, 235, 0.3); transition: 0.3s;
+        }
+        .read-more:hover { background: var(--primary-color); color: #fff; transform: translateY(-3px); }
+
+        /* Footer */
+        footer { text-align: center; padding: 40px 20px; color: var(--text-main); font-size: 14px; font-weight: 600; }
+
+        /* Loader */
+        #loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #E0F7FA; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.8s; }
+        .loader-cloud { font-size: 60px; color: var(--primary-color); animation: bounceCloud 2s infinite ease-in-out; }
+        @keyframes bounceCloud { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+
+    </style>
+</head>
+<body>
+
+    <!-- Background -->
+    <div class="cloud-container">
+        <div class="cloud c1"></div>
+        <div class="cloud c2"></div>
+        <div class="cloud c3"></div>
+    </div>
+    <div id="particles-js" style="position: fixed; top:0; left:0; width:100%; height:100%; z-index:-1;"></div>
+
+    <!-- Loading -->
+    <div id="loader">
+        <i class="fas fa-cloud loader-cloud"></i>
+        <p style="margin-top: 15px; color: var(--text-main); font-weight: 700;">LOADING MEMORIES...</p>
+    </div>
+
+    <!-- Nav -->
+    <div class="overlay" id="overlay"></div>
+    <nav>
+        <div class="nav-logo"><i class="fas fa-camera-retro"></i> MEMORIES</div>
+        <div class="menu-toggle" id="menu-btn"><i class="fas fa-bars"></i></div>
+    </nav>
+    <div class="nav-links" id="sidebar">
+        <div style="padding: 0 30px 30px;">
+            <h2 style="text-align: left; margin: 0; font-size: 30px; color: var(--primary-color);">MENU</h2>
+        </div>
+        <a href="index.html"><i class="fas fa-home"></i> Trang chủ</a>
+        <a href="news.html"><i class="fas fa-images"></i> Khoảnh khắc</a>
+        <a href="humans.html"><i class="fas fa-user-friends"></i> Thành viên</a>
+         <a href="thanhtich.html"><i class="fas fa-user-friends"></i> Thành tích</a>
+         <a href="video.html"><i class="fas fa-user-friends"></i> K5A8 Shorts</a>
+        <a href="#" onclick="closeMenu()"><i class="fas fa-times-circle"></i> Đóng lại</a>
+    </div>
+
+    <!-- Content -->
+    <div class="page-header">
+        <h1 class="page-title">Hành Trình K5A8</h1>
+        <p style="color: var(--text-main); font-weight: 600;">3 Năm - Một Chặng Đường</p>
+    </div>
+
+    <div class="news-container">
+        <div class="news-grid">
+            
+            <article class="news-card tilt-card">
+                <div class="news-img-wrapper">
+                    <img src="Images/mm1.jpg" alt="Lần đầu tiên gặp nhau">
+                    <span class="news-date">12/8/2023</span>
+                </div>
+                <div class="news-content">
+                    <h3>Lần đầu tiên gặp nhau</h3>
+                    <p>Không khí ấm áp và đầy cảm xúc trong ngày đặc biệt của đại gia đình K5A8.</p>
+                    <a href="baiviet1.html" class="read-more">Xem chi tiết <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </article>
+
+            <article class="news-card tilt-card">
+                <div class="news-img-wrapper">
+                    <img src="Images/mm2.jpg" alt="Ngày Phụ Nữ Việt Nam">
+                    <span class="news-date">20/10/2023</span>
+                </div>
+                <div class="news-content">
+                    <h3>Ngày Phụ Nữ Việt Nam</h3>
+                    <p>Món quà đặc biệt dành tặng cho các quý cô K5A8, tràn ngập niềm vui và nụ cười.</p>
+                    <a href="baiviet2.html" class="read-more">Xem chi tiết <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </article>
+
+            <article class="news-card tilt-card">
+                <div class="news-img-wrapper">
+                    <img src="Images/khamlon.jpg" alt="Tham Quan Khám Lớn và Đền Hùng">
+                    <span class="news-date">22/10/2023</span>
+                </div>
+                <div class="news-content">
+                    <h3>Tham Quan Khám Lớn và Đền Hùng</h3>
+                    <p>Chuyến đi đầu tiên cùng nhau.</p>
+                    <a href="khamlon.html" class="read-more">Xem chi tiết <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </article>
+
+            <article class="news-card tilt-card">
+                <div class="news-img-wrapper">
+                    <img src="Images/mm3.jpg" alt="Ngày Nhà Giáo Việt Nam">
+                    <span class="news-date">20/11/2023</span>
+                </div>
+                <div class="news-content">
+                    <h3>Ngày Nhà Giáo Việt Nam</h3>
+                    <p>Những khoảnh khắc xúc động dành tặng cho thầy Nguyễn Minh Khiêm thân yêu.</p>
+                    <a href="baiviet3.html" class="read-more">Xem chi tiết <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </article>
+
+            <article class="news-card tilt-card">
+                <div class="news-img-wrapper">
+                    <img src="Images/mm8.jpg" alt="Phiên Tòa Giả Định">
+                    <span class="news-date">23/11/2023</span>
+                </div>
+                <div class="news-content">
+                    <h3>Phiên Tòa Giả Định</h3>
+                    <p>Hóa thân thành những người thực thi công lí cùng K5A8.</p>
+                    <a href="phientoagiadinh.html" class="read-more">Xem chi tiết <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </article>
+
+            <article class="news-card tilt-card">
+                <div class="news-img-wrapper">
+                    <img src="Images/mm4.jpg" alt="Giáng Sinh Ấm Áp">
+                    <span class="news-date">24/12/2023</span>
+                </div>
+                <div class="news-content">
+                    <h3>Giáng Sinh Ấm Áp</h3>
+                    <p>Tháng 12 lạnh giá nhưng tình cảm bạn bè khiến trái tim K5A8 luôn ấm áp.</p>
+                    <a href="baiviet4.html" class="read-more">Xem chi tiết <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </article>
+
+            <article class="news-card tilt-card">
+                <div class="news-img-wrapper">
+                    <img src="Images/mm5.jpg" alt="Gian Hàng Tết">
+                    <span class="news-date">29/1/2024</span>
+                </div>
+                <div class="news-content">
+                    <h3>Gian Hàng Tết</h3>
+                    <p>Không khí rộn ràng của mùa xuân tràn ngập trong gian hàng nhỏ mang tên K5A8.</p>
+                    <a href="baiviet5.html" class="read-more">Xem chi tiết <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </article>
+
+            <article class="news-card tilt-card">
+                <div class="news-img-wrapper">
+                    <img src="Images/mm6.jpg" alt="Ngày Quốc tế Phụ nữ">
+                    <span class="news-date">8/3/2024</span>
+                </div>
+                <div class="news-content">
+                    <h3>Ngày Quốc tế Phụ nữ</h3>
+                    <p>Kỷ niệm 8/3 đầu tiên, lớp chúng mình lại có dịp lan tỏa sự yêu thương và trân trọng đến phái đẹp.</p>
+                    <a href="baiviet6.html#" class="read-more">Xem chi tiết <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </article>
+
+            <article class="news-card tilt-card">
+                <div class="news-img-wrapper">
+                    <img src="Images/mm9.jpg" alt="Quốc Phòng đầu tiên">
+                    <span class="news-date">31/3/2024</span>
+                </div>
+                <div class="news-content">
+                    <h3>Quốc Phòng đầu tiên</h3>
+                    <p>Khoác lên mình màu áo xanh, K5A8 lăn lộn vì tổ quốc.</p>
+                    <a href="quocphong.html#" class="read-more">Xem chi tiết <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </article>
+
+            <article class="news-card tilt-card">
+                <div class="news-img-wrapper">
+                    <img src="Images/mmdacbiet.jpg" alt="Liên Hoan Cuối Năm Học">
+                    <span class="news-date">22/5/2024</span>
+                </div>
+                <div class="news-content">
+                    <h3>Liên Hoan Cuối Năm Học</h3>
+                    <p>Những giây phút bên nhau cuối cùng của năm học, gói trọn niềm vui và sự gắn kết không thể nào quên.</p>
+                    <a href="baiviet7.html#" class="read-more">Xem chi tiết <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </article>
+
+            <article class="news-card tilt-card">
+                <div class="news-img-wrapper">
+                    <img src="Images/mm10.jpg" alt="Kết thúc năm học đầu tiên">
+                    <span class="news-date">24/5/2024</span>
+                </div>
+                <div class="news-content">
+                    <h3>Kết thúc năm học đầu tiên</h3>
+                    <p>Ngày 24/5/2024 đánh dấu một cột mốc đặc biệt - khép lại năm học đầu tiên đầy trải nghiệm và kỷ niệm đáng nhớ.</p>
+                    <a href="baiviet8.html#" class="read-more">Xem chi tiết <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </article>
+
+            <article class="news-card tilt-card">
+                <div class="news-img-wrapper">
+                    <img src="Images/mm11.jpg" alt="Ngày Đầu Tiên Của Năm Học Thứ Hai">
+                    <span class="news-date">12/8/2024</span>
+                </div>
+                <div class="news-content">
+                    <h3>Ngày Đầu Tiên Của Năm Học Thứ Hai</h3>
+                    <p>Mùa hè đi qua và chúng ta lại gặp nhau trong một năm học có nhiều thay đổi.</p>
+                    <a href="baiviet9.html#" class="read-more">Xem chi tiết <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </article>
+
+            <article class="news-card tilt-card">
+                <div class="news-img-wrapper">
+                    <img src="Images/mm12.jpg" alt="Lần Đầu Được Chơi Team Building">
+                    <span class="news-date">30/8/2024</span>
+                </div>
+                <div class="news-content">
+                    <h3>Lần Đầu Được Chơi Team Building</h3>
+                    <p>Hành trình vui chơi thú vị cùng nhau của K5A8.</p>
+                    <a href="#" class="read-more">Xem chi tiết <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </article>
+
+            <article class="news-card tilt-card">
+                <div class="news-img-wrapper">
+                    <img src="Images/mm13.jpg" alt="Khai Giảng Năm Thứ Hai">
+                    <span class="news-date">5/9/2024</span>
+                </div>
+                <div class="news-content">
+                    <h3>Khai Giảng Năm Thứ Hai</h3>
+                    <p>Thanh âm khai giảng ngày 5/9/2024 vang lên như một lời nhắc quen thuộc, nhưng ý nghĩa lại khác hẳn so với năm đầu tiên..</p>
+                    <a href="#" class="read-more">Xem chi tiết <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </article>
+
+            <article class="news-card tilt-card">
+                <div class="news-img-wrapper">
+                    <img src="Images/mm14.jpg" alt="Ngày Quân Sự Tại Hòa An">
+                    <span class="news-date">15/9/2024</span>
+                </div>
+                <div class="news-content">
+                    <h3>Ngày Quân Sự Tại Hòa An </h3>
+                    <p>Khoác lên mình màu xanh Tổ quốc, tập thể K5A8 chính thức bước vào những ngày quân sự tại Hòa An, một trải nghiệm rất khác so với những ngày học thường nhật.</p>
+                    <a href="#" class="read-more">Xem chi tiết <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </article>
+
+            <article class="news-card tilt-card">
+                <div class="news-img-wrapper">
+                    <img src="Images/mm15.jpg" alt="Ngày Quốc Tế Nam Giới">
+                    <span class="news-date">19/11/2024</span>
+                </div>
+                <div class="news-content">
+                    <h3>Ngày Quốc Tế Nam Giới</h3>
+                    <p>Những nụ cười rạng rỡ trong khung hình của tuổi học trò.</p>
+                    <a href="#" class="read-more">Xem chi tiết <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </article>
+
+            <article class="news-card tilt-card">
+                <div class="news-img-wrapper">
+                    <img src="Images/mm16.jpg" alt="Ngày Nhà Giáo Việt Nam">
+                    <span class="news-date">20/11/2024</span>
+                </div>
+                <div class="news-content">
+                    <h3>Ngày Nhà Giáo Việt Nam</h3>
+                    <p>Những khoảnh khắc cùng thầy Khiêm, ghế bàn, và những buổi học thân quen.</p>
+                    <a href="#" class="read-more">Xem chi tiết <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </article>
+
+            <article class="news-card tilt-card">
+                <div class="news-img-wrapper">
+                    <img src="Images/mm17.jpg" alt="Ngày Hội Địa Lí Đa Quốc Gia">
+                    <span class="news-date">11/12/2024</span>
+                </div>
+                <div class="news-content">
+                    <h3>Ngày Hội Địa Lí Đa Quốc Gia</h3>
+                    <p>Ngày K5A8 phá đảo khối xã hội.</p>
+                    <a href="#" class="read-more">Xem chi tiết <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </article>
+
+            <article class="news-card tilt-card">
+                <div class="news-img-wrapper">
+                    <img src="Images/mm18.jpg" alt="Hội Chợ Xuân Vị Tết Quê Em">
+                    <span class="news-date">12/1/2025</span>
+                </div>
+                <div class="news-content">
+                    <h3>Hội Chợ Xuân Vị Tết Quê Em</h3>
+                    <p>Ngày K5A8 cùng nhau khám phá đặc sản tết của nhiều vùng miền xa xôi trên đất nước.</p>
+                    <a href="#" class="read-more">Xem chi tiết <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </article>
+
+            <article class="news-card tilt-card">
+                <div class="news-img-wrapper">
+                    <img src="Images/mm19.jpg" alt="Cổ Vũ Fschoolympic">
+                    <span class="news-date">27/3/2025</span>
+                </div>
+                <div class="news-content">
+                    <h3>Cổ Vũ Fschoolympic</h3>
+                    <p>Ngày K5A8 cùng nhau khám phá đặc sản tết của nhiều vùng miền xa xôi trên đất nước.</p>
+                    <a href="#" class="read-more">Xem chi tiết <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </article>
+
+            <article class="news-card tilt-card">
+                <div class="news-img-wrapper">
+                    <img src="Images/mm20.jpg" alt="Ăn Liên Hoan - Ăn Tất Niên">
+                    <span class="news-date">13/1/2025</span>
+                </div>
+                <div class="news-content">
+                    <h3>Ăn Liên Hoan - Ăn Tất Niên</h3>
+                    <p>Khoảnh khắc vui vẻ cùng nhau trước khi bước vào kì nghỉ tết.</p>
+                    <a href="#" class="read-more">Xem chi tiết <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </article>
+
+            <article class="news-card tilt-card">
+                <div class="news-img-wrapper">
+                    <img src="Images/mm21.jpg" alt="Thi Võ Nhạc">
+                    <span class="news-date">1/4/2025</span>
+                </div>
+                <div class="news-content">
+                    <h3>Thi Võ Nhạc</h3>
+                    <p>Nơi mà tài năng nghệ thuật và tinh thần võ đạo của K5A8 được bộc lộ.</p>
+                    <a href="#" class="read-more">Xem chi tiết <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </article>
+
+            <article class="news-card tilt-card">
+                <div class="news-img-wrapper">
+                    <img src="Images/mm22.jpg" alt="Ăn Liên Hoan Cuối Năm">
+                    <span class="news-date">21/5/2025</span>
+                </div>
+                <div class="news-content">
+                    <h3>Ăn Liên Hoan Cuối Năm</h3>
+                    <p>Buổi ăn cuối cùng nhau trước khi bước vào kì nghỉ hè và khoảnh khắc bất ngờ dành cho thầy Khiêm.</p>
+                    <a href="#" class="read-more">Xem chi tiết <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </article>
+
+            <article class="news-card tilt-card">
+                <div class="news-img-wrapper">
+                    <img src="Images/mm23.jpg" alt="Tổng Kết, Lễ Chúc Mừng Thành Tích">
+                    <span class="news-date">22/5/2025</span>
+                </div>
+                <div class="news-content">
+                    <h3>Tổng Kết, Lễ Chúc Mừng Thành Tích</h3>
+                    <p>Khoảnh khắc đáng nhớ khi K5A8 cùng nhau bước lên sân khấu.</p>
+                    <a href="#" class="read-more">Xem chi tiết <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </article>
+
+            <article class="news-card tilt-card">
+                <div class="news-img-wrapper">
+                    <img src="Images/mm24.jpg" alt="Nhập Học Năm Cuối cấp">
+                    <span class="news-date">18/8/2025</span>
+                </div>
+                <div class="news-content">
+                    <h3>Nhập Học Năm Cuối cấp</h3>
+                    <p>Lần thứ ba cũng như là lần cuối cùng chúng ta có cảm giác này.</p>
+                    <a href="#" class="read-more">Xem chi tiết <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </article>
+
+            <article class="news-card tilt-card">
+                <div class="news-img-wrapper">
+                    <img src="Images/mm25.jpg" alt="Team Building">
+                    <span class="news-date">28/8/2025</span>
+                </div>
+                <div class="news-content">
+                    <h3>Team Building</h3>
+                    <p>Khoảnh khắc K5A8 cùng nhau hợp sức giải đố các trò chơi và vui đùa trong nắng sớm.</p>
+                    <a href="#" class="read-more">Xem chi tiết <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </article>
+
+            <article class="news-card tilt-card">
+                <div class="news-img-wrapper">
+                    <img src="Images/mm26.jpg" alt="Khai Giảng Lần Cuối">
+                    <span class="news-date">5/9/2025</span>
+                </div>
+                <div class="news-content">
+                    <h3>Khai Giảng Lần Cuối</h3>
+                    <p>Lần cuối cùng nhau, mặc dù có rất nhiều thay đổi nhưng cảm giác đầy tình yêu thương và ấm áp dành cho nhau vẫn vẹn nguyên như ngày đầu.</p>
+                    <a href="#" class="read-more">Xem chi tiết <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </article>
+
+            <article class="news-card tilt-card">
+                <div class="news-img-wrapper">
+                    <img src="Images/mm27.jpg" alt="Xem Phim Mưa Đỏ">
+                    <span class="news-date">10/9/2025</span>
+                </div>
+                <div class="news-content">
+                    <h3>Xem Phim Mưa Đỏ</h3>
+                    <p>Cùng K5A8 lật lại những trang sử hào hùng của dân tộc.</p>
+                    <a href="#" class="read-more">Xem chi tiết <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </article>
+
+            <article class="news-card tilt-card">
+                <div class="news-img-wrapper">
+                    <img src="Images/mm28.jpg" alt="Coming Soon">
+                    <span class="news-date">20/5/2025</span>
+                </div>
+                <div class="news-content">
+                    <h3>Coming Soon</h3>
+                    <p>Coming Soon.</p>
+                    <a href="#" class="read-more">Xem chi tiết <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </article>
+
+            <article class="news-card tilt-card">
+                <div class="news-img-wrapper">
+                    <img src="Images/mm25.jpg" alt="Coming Soon">
+                    <span class="news-date">1/6/2025</span>
+                </div>
+                <div class="news-content">
+                    <h3>Coming Soon</h3>
+                    <p>Coming Soon.</p>
+                    <a href="#" class="read-more">Xem chi tiết <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </article>
+
+            <article class="news-card tilt-card">
+                <div class="news-img-wrapper">
+                    <img src="Images/mm26.jpg" alt="Coming Soon">
+                    <span class="news-date">20/12/2023</span>
+                </div>
+                <div class="news-content">
+                    <h3>Coming Soon</h3>
+                    <p>Coming Soon.</p>
+                    <a href="#" class="read-more">Xem chi tiết <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </article>
+
+            <article class="news-card tilt-card">
+                <div class="news-img-wrapper">
+                    <img src="Images/mm27.jpg" alt="Coming Soon">
+                    <span class="news-date">29/5/2024</span>
+                </div>
+                <div class="news-content">
+                    <h3>Coming Soon</h3>
+                    <p>Coming Soon.</p>
+                    <a href="#" class="read-more">Xem chi tiết <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </article>
+
+            <article class="news-card tilt-card">
+                <div class="news-img-wrapper">
+                    <img src="Images/mm28.jpg" alt="Coming Soon">
+                    <span class="news-date">15/7/2024</span>
+                </div>
+                <div class="news-content">
+                    <h3>Coming Soon</h3>
+                    <p>Coming Soon.</p>
+                    <a href="#" class="read-more">Xem chi tiết <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </article>
+
+            <article class="news-card tilt-card">
+                <div class="news-img-wrapper">
+                    <img src="Images/mm29.jpg" alt="Coming Soon">
+                    <span class="news-date">5/10/2024</span>
+                </div>
+                <div class="news-content">
+                    <h3>Coming Soon</h3>
+                    <p>Coming Soon.</p>
+                    <a href="#" class="read-more">Xem chi tiết <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </article>
+
+            <article class="news-card tilt-card">
+                <div class="news-img-wrapper">
+                    <img src="Images/mm30.jpg" alt="Coming Soon">
+                    <span class="news-date">10/11/2024</span>
+                </div>
+                <div class="news-content">
+                    <h3>Coming Soon</h3>
+                    <p>Coming Soon.</p>
+                    <a href="#" class="read-more">Xem chi tiết <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </article>
+
+            <article class="news-card tilt-card">
+                <div class="news-img-wrapper">
+                    <img src="Images/mm31.jpg" alt="Coming Soon">
+                    <span class="news-date">15/3/2025</span>
+                </div>
+                <div class="news-content">
+                    <h3>Coming Soon</h3>
+                    <p>Coming Soon.</p>
+                    <a href="#" class="read-more">Xem chi tiết <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </article>
+
+            <article class="news-card tilt-card">
+                <div class="news-img-wrapper">
+                    <img src="Images/mm32.jpg" alt="Coming Soon">
+                    <span class="news-date">25/4/2025</span>
+                </div>
+                <div class="news-content">
+                    <h3>Coming Soon</h3>
+                    <p>Coming Soon.</p>
+                    <a href="#" class="read-more">Xem chi tiết <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </article>
+
+            <article class="news-card tilt-card">
+                <div class="news-img-wrapper">
+                    <img src="Images/mm33.jpg" alt="Coming Soon">
+                    <span class="news-date">10/5/2025</span>
+                </div>
+                <div class="news-content">
+                    <h3>Coming Soon</h3>
+                    <p>Coming Soon.</p>
+                    <a href="#" class="read-more">Xem chi tiết <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </article>
+
+            <article class="news-card tilt-card">
+                <div class="news-img-wrapper">
+                    <img src="Images/mm34.jpg" alt="Coming Soon">
+                    <span class="news-date">19/5/2025</span>
+                </div>
+                <div class="news-content">
+                    <h3>Coming Soon</h3>
+                    <p>Coming Soon.</p>
+                    <a href="#" class="read-more">Xem chi tiết <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </article>
+
+            <article class="news-card tilt-card">
+                <div class="news-img-wrapper">
+                    <img src="Images/mm35.jpg" alt="Coming Soon">
+                    <span class="news-date">12/8/2025</span>
+                </div>
+                <div class="news-content">
+                    <h3>Coming Soon</h3>
+                    <p>Coming Soon.</p>
+                    <a href="#" class="read-more">Xem chi tiết <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </article>
+
+        </div>
+    </div>
+
+    <footer>
+        <p style="opacity: 0.8;">© 2025 K5A8</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script src="https://unpkg.com/scrollreveal"></script>
+    <script>
+        // Init
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('loader').style.opacity = '0';
+                setTimeout(() => document.getElementById('loader').style.display = 'none', 800);
+            }, 1000);
+        });
+
+        // Menu
+        const menuBtn = document.getElementById('menu-btn');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+        function toggleMenu() { sidebar.classList.toggle('active'); overlay.classList.toggle('active'); }
+        function closeMenu() { sidebar.classList.remove('active'); overlay.classList.remove('active'); }
+        menuBtn.addEventListener('click', toggleMenu); overlay.addEventListener('click', closeMenu);
+
+        // Particles
+        particlesJS('particles-js', {
+            "particles": {
+                "number": { "value": 30 },
+                "color": { "value": "#ffffff" },
+                "shape": { "type": "circle" },
+                "opacity": { "value": 0.5 },
+                "size": { "value": 5, "random": true },
+                "move": { "enable": true, "speed": 1, "direction": "bottom" },
+                "line_linked": { "enable": false }
+            }
+        });
+
+        // ScrollReveal
+        ScrollReveal().reveal('.news-card', { delay: 200, distance: '30px', interval: 100, origin: 'bottom' });
+    </script>
+</body>
+</html>

@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MEMORIES - K5A8 TIMES</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1a1a1a">
+    <link href="Images/logo.jpg" rel="icon" type="image/jpg"/>
+
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lora:wght@400;600&family=Oswald:wght@500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root { --bg-paper: #f9f7f1; --text-ink: #1a1a1a; --accent: #b91c1c; }
+        body { font-family: 'Lora', serif; background-color: var(--bg-paper); color: var(--text-ink); margin: 0; }
+
+        /* Nav */
+        nav { position: sticky; top: 0; z-index: 1000; background: #fff; border-bottom: 1px solid #000; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; }
+        .nav-brand { font-family: 'Oswald', sans-serif; font-size: 20px; font-weight: 700; text-transform: uppercase; }
+        .menu-toggle { font-size: 24px; cursor: pointer; }
+        
+        .sidebar { position: fixed; top: 0; right: -100%; width: 300px; height: 100vh; background: #1a1a1a; padding: 50px 30px; transition: 0.5s; z-index: 2000; display: flex; flex-direction: column; gap: 20px; }
+        .sidebar.active { right: 0; }
+        .sidebar a { color: #fff; text-decoration: none; font-family: 'Playfair Display'; font-size: 24px; border-bottom: 1px solid #444; padding-bottom: 10px; }
+        .close-btn { position: absolute; top: 20px; right: 20px; color: #fff; font-size: 30px; cursor: pointer; }
+        .overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1500; opacity:0; visibility:hidden; transition:0.3s; }
+        .overlay.active { opacity:1; visibility:visible; }
+
+        /* Header */
+        .header-section { text-align: center; padding: 60px 20px; border-bottom: 1px double #000; background: #fff; }
+        .header-title { font-family: 'Playfair Display', serif; font-size: 3.5rem; text-transform: uppercase; letter-spacing: 5px; margin: 0; }
+        .header-meta { font-family: 'Oswald'; color: #666; margin-top: 10px; font-size: 14px; letter-spacing: 2px; }
+
+        /* Categories */
+        .category-bar { display: flex; justify-content: center; gap: 30px; padding: 15px 0; border-bottom: 1px solid #ddd; background: #fff; position: sticky; top: 70px; z-index: 900; overflow-x: auto; }
+        .cat-link { text-decoration: none; color: #000; font-family: 'Oswald'; text-transform: uppercase; font-size: 14px; letter-spacing: 1px; transition: 0.3s; white-space: nowrap; }
+        .cat-link:hover { color: var(--accent); }
+
+        /* Masonry Grid */
+        .container { max-width: 1400px; margin: 0 auto; padding: 40px 20px; }
+        .news-grid { column-count: 4; column-gap: 25px; } 
+        
+        .news-item {
+            break-inside: avoid; margin-bottom: 25px; background: #fff;
+            border: 1px solid #eee; padding: 0; box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s; position: relative; overflow: hidden;
+        }
+        .news-item:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        
+        .news-img { width: 100%; height: auto; display: block; filter: sepia(20%); transition: 0.5s; }
+        .news-item:hover .news-img { filter: sepia(0%); transform: scale(1.05); }
+        
+        .news-content { padding: 20px; }
+        .cat-tag { font-family: 'Oswald'; font-size: 10px; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 5px; font-weight: 700; }
+        .date-tag { font-family: 'Lora'; font-size: 12px; color: #999; font-style: italic; float: right; }
+        .news-title { font-family: 'Playfair Display'; font-size: 1.4rem; line-height: 1.2; margin: 5px 0 10px; font-weight: 700; }
+        .news-desc { font-size: 14px; color: #555; margin-bottom: 15px; text-align: justify; line-height: 1.5; }
+        
+        .read-more { font-family: 'Oswald'; font-size: 12px; text-decoration: none; color: #000; border-bottom: 1px solid #000; padding-bottom: 2px; }
+
+        /* Responsive */
+        @media (max-width: 1200px) { .news-grid { column-count: 3; } }
+        @media (max-width: 900px) { .news-grid { column-count: 2; } .header-title { font-size: 2.5rem; } }
+        @media (max-width: 600px) { .news-grid { column-count: 1; } }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="menu-toggle" id="menu-btn"><i class="fas fa-bars"></i></div>
+        <a href="index.html" style="text-decoration: none; color: black;"><div class="nav-brand">THE K5A8 TIMES</div></a>
+        <div><i class="fas fa-search"></i></div>
+    </nav>
+
+    <div class="overlay" id="overlay"></div>
+    <div class="sidebar" id="sidebar">
+        <div class="close-btn" onclick="closeMenu()">&times;</div>
+        <a href="index.html">Trang Nhất</a>
+        <a href="news.html">Kỷ Niệm</a>
+        <a href="humans.html">Nhân Vật</a>
+    </div>
+
+    <header class="header-section">
+        <h1 class="header-title">Kho Lưu Trữ Ký Ức</h1>
+        <div class="header-meta">Ấn Phẩm Đặc Biệt • Kỷ Niệm 2023 - 2025 • Lưu Hành Nội Bộ</div>
+    </header>
+
+    <div class="category-bar">
+        <a href="#" class="cat-link">Tất Cả</a>
+        <a href="#" class="cat-link">Sự Kiện Lớn</a>
+        <a href="#" class="cat-link">CHUYỆN BÊN LỀ</a>
+        <a href="#" class="cat-link">Học Tập</a>
+        <a href="#" class="cat-link">Văn Nghệ</a>
+        <a href="#" class="cat-link">Thể Thao</a>
+    </div>
+
+    <div class="container">
+        <div class="news-grid">
+            
+            <!-- BẮT ĐẦU DANH SÁCH 50 BÀI VIẾT (BẠN SỬA ẢNH Ở ĐÂY) -->
+
+            <!-- Bài 1 -->
+            <div class="news-item">
+                <img src="Images/mm1.jpg" class="news-img" loading="lazy">
+                <div class="news-content">
+                    <span class="date-tag">Những tháng năm không quên</span>
+                    <span class="cat-tag">Sự Kiện Lớn</span>
+                    <h3 class="news-title">Giải ấn tượng” của Cuộc thi phiên toà giả định lần thứ 2</h3>
+                    <p class="news-desc">Giải thưởng "ấn tượng" của K5A8 trong năm đầu gắn bó cùng nhau.</p>
+                    <a href="baiviet1.html" class="read-more">Đọc tiếp →</a>
+                </div>
+            </div>
+
+            <!-- Bài 2 -->
+            <div class="news-item">
+                <img src="Images/mm2.jpg" class="news-img" loading="lazy">
+                <div class="news-content">
+                    <span class="date-tag">Những tháng năm không quên</span>
+                    <span class="cat-tag">Sự Kiện Lớn</span>
+                    <h3 class="news-title">Nhân - Trâm - Khoa - Tường, khi đã xuất sắc đạt “Giải nhì” cuộc thi Stempetition cấp trường</h3>
+                    <p class="news-desc">Những nhà khoa học K5A8.</p>
+                    <a href="baiviet2.html" class="read-more">Đọc tiếp →</a>
+                </div>
+            </div>
+
+            <!-- Bài 3 -->
+            <div class="news-item">
+                <img src="Images/khamlon.jpg" class="news-img" loading="lazy">
+                <div class="news-content">
+                    <span class="date-tag">Những tháng năm không quên</span>
+                    <span class="cat-tag">Sự Kiện Lớn</span>
+                    <h3 class="news-title">Tham Quan Khám Lớn</h3>
+                    <p class="news-desc">Chuyến đi đầu tiên cùng nhau, tìm hiểu lịch sử hào hùng.</p>
+                    <a href="khamlon.html" class="read-more">Đọc tiếp →</a>
+                </div>
+            </div>
+
+            <!-- Bài 4 -->
+            <div class="news-item">
+                <img src="Images/mm3.jpg" class="news-img" loading="lazy">
+                <div class="news-content">
+                    <span class="date-tag">Những tháng năm không quên</span>
+                    <span class="cat-tag">Sự Kiện Lớn</span>
+                    <h3 class="news-title">Ngày Nhà Giáo Việt Nam</h3>
+                    <p class="news-desc">Những khoảnh khắc xúc động dành tặng cho thầy Nguyễn Minh Khiêm thân yêu.</p>
+                    <a href="baiviet3.html" class="read-more">Đọc tiếp →</a>
+                </div>
+            </div>
+
+            <!-- Bài 5 -->
+            <div class="news-item">
+                <img src="Images/phientoagiadinh.jpg" class="news-img" loading="lazy">
+                <div class="news-content">
+                    <span class="date-tag">Những tháng năm không quên</span>
+                    <span class="cat-tag">Sự Kiện Lớn</span>
+                    <h3 class="news-title">Phiên Tòa Giả Định</h3>
+                    <p class="news-desc">Hóa thân thành những người thực thi công lí cùng K5A8.</p>
+                    <a href="phientoagiadinh.html" class="read-more">Đọc tiếp →</a>
+                </div>
+            </div>
+
+            <!-- Bài 6 -->
+            <div class="news-item">
+                <img src="Images/mm4.jpg" class="news-img" loading="lazy">
+                <div class="news-content">
+                    <span class="date-tag">Những tháng năm không quên</span>
+                    <span class="cat-tag">Sự Kiện Lớn</span>
+                    <h3 class="news-title">Giáng Sinh Ấm Áp</h3>
+                    <p class="news-desc">Tháng 12 lạnh giá nhưng tình cảm bạn bè khiến trái tim K5A8 luôn ấm áp.</p>
+                    <a href="baiviet4.html" class="read-more">Đọc tiếp →</a>
+                </div>
+            </div>
+
+            <!-- Bài 7 -->
+            <div class="news-item">
+                <img src="Images/mm5.jpg" class="news-img" loading="lazy">
+                <div class="news-content">
+                    <span class="date-tag">Những tháng năm không quên</span>
+                    <span class="cat-tag">Sự Kiện Lớn</span>
+                    <h3 class="news-title">Gian Hàng Tết</h3>
+                    <p class="news-desc">Không khí rộn ràng của mùa xuân tràn ngập trong gian hàng nhỏ mang tên K5A8.</p>
+                    <a href="baiviet5.html" class="read-more">Đọc tiếp →</a>
+                </div>
+            </div>
+
+            <!-- Bài 8 -->
+            <div class="news-item">
+                <img src="Images/mm6.jpg" class="news-img" loading="lazy">
+                <div class="news-content">
+                    <span class="date-tag">Những tháng năm không quên</span>
+                    <span class="cat-tag">Sự Kiện Lớn</span>
+                    <h3 class="news-title">Quốc Tế Phụ Nữ</h3>
+                    <p class="news-desc">Kỷ niệm 8/3 đầu tiên, lớp chúng mình lại có dịp lan tỏa sự yêu thương.</p>
+                    <a href="#" class="read-more">Đọc tiếp →</a>
+                </div>
+            </div>
+
+            <!-- Bài 9 -->
+            <div class="news-item">
+                <img src="Images/quocphong.jpg" class="news-img" loading="lazy">
+                <div class="news-content">
+                    <span class="date-tag">Những tháng năm không quên</span>
+                    <span class="cat-tag">Sự Kiện Lớn</span>
+                    <h3 class="news-title">Quốc Phòng Đầu Tiên</h3>
+                    <p class="news-desc">Khoác lên mình màu áo xanh, K5A8 lăn lộn vì tổ quốc.</p>
+                    <a href="#" class="read-more">Đọc tiếp →</a>
+                </div>
+            </div>
+
+            <!-- Bài 10 -->
+            <div class="news-item">
+                <img src="Images/mmdacbiet.jpg" class="news-img" loading="lazy">
+                <div class="news-content">
+                    <span class="date-tag">Những tháng năm không quên</span>
+                    <span class="cat-tag">Sự Kiện Lớn</span>
+                    <h3 class="news-title">Liên Hoan Cuối Năm</h3>
+                    <p class="news-desc">Những giây phút bên nhau cuối cùng của năm học lớp 10.</p>
+                    <a href="#" class="read-more">Đọc tiếp →</a>
+                </div>
+            </div>
+
+            <!-- Bài 11 -->
+            <div class="news-item">
+                <img src="Images/mm7.jpg" class="news-img" loading="lazy">
+                <div class="news-content">
+                    <span class="date-tag">Những tháng năm không quên</span>
+                    <span class="cat-tag">Sự Kiện Lớn</span>
+                    <h3 class="news-title">Kết Thúc Năm Nhất</h3>
+                    <p class="news-desc">Cột mốc đặc biệt khép lại năm học đầu tiên đầy trải nghiệm.</p>
+                    <a href="#" class="read-more">Đọc tiếp →</a>
+                </div>
+            </div>
+
+            <!-- Bài 12 -->
+            <div class="news-item">
+                <img src="Images/mm8.jpg" class="news-img" loading="lazy">
+                <div class="news-content">
+                    <span class="date-tag">Những tháng năm không quên</span>
+                    <span class="cat-tag">Sự Kiện Lớn</span>
+                    <h3 class="news-title">Ngày Đầu Năm 2</h3>
+                    <p class="news-desc">Mùa hè đi qua và chúng ta lại gặp nhau trong một năm học mới.</p>
+                    <a href="#" class="read-more">Đọc tiếp →</a>
+                </div>
+            </div>
+
+            <!-- Bài 13 -->
+            <div class="news-item">
+                <img src="Images/mm9.jpg" class="news-img" loading="lazy">
+                <div class="news-content">
+                    <span class="date-tag">Những tháng năm không quên</span>
+                    <span class="cat-tag">Sự Kiện Lớn</span>
+                    <h3 class="news-title">Team Building</h3>
+                    <p class="news-desc">Hành trình vui chơi thú vị cùng nhau của K5A8.</p>
+                    <a href="#" class="read-more">Đọc tiếp →</a>
+                </div>
+            </div>
+
+            <!-- Bài 14 -->
+            <div class="news-item">
+                <img src="Images/mm10.jpg" class="news-img" loading="lazy">
+                <div class="news-content">
+                    <span class="date-tag">Những tháng năm không quên</span>
+                    <span class="cat-tag">Sự Kiện Lớn</span>
+                    <h3 class="news-title">Khai Giảng Năm 2</h3>
+                    <p class="news-desc">Thanh âm khai giảng vang lên như một lời nhắc quen thuộc.</p>
+                    <a href="#" class="read-more">Đọc tiếp →</a>
+                </div>
+            </div>
+
+            <!-- Bài 15 -->
+            <div class="news-item">
+                <img src="Images/mm11.jpg" class="news-img" loading="lazy">
+                <div class="news-content">
+                    <span class="date-tag">Những tháng năm không quên</span>
+                    <span class="cat-tag">Sự Kiện Lớn</span>
+                    <h3 class="news-title">Quân Sự Hòa An</h3>
+                    <p class="news-desc">Tập thể K5A8 chính thức bước vào những ngày quân sự đáng nhớ.</p>
+                    <a href="#" class="read-more">Đọc tiếp →</a>
+                </div>
+            </div>
+
+            <!-- Bài 16 -->
+            <div class="news-item">
+                <img src="Images/mm12.jpg" class="news-img" loading="lazy">
+                <div class="news-content">
+                    <span class="date-tag">Những tháng năm không quên</span>
+                    <span class="cat-tag">Sự Kiện Lớn</span>
+                    <h3 class="news-title">Quốc Tế Nam Giới</h3>
+                    <p class="news-desc">Những nụ cười rạng rỡ của các chàng trai K5A8.</p>
+                    <a href="#" class="read-more">Đọc tiếp →</a>
+                </div>
+            </div>
+
+            <!-- Bài 17 -->
+            <div class="news-item">
+                <img src="Images/mm13.jpg" class="news-img" loading="lazy">
+                <div class="news-content">
+                    <span class="date-tag">Những tháng năm không quên</span>
+                    <span class="cat-tag">Sự Kiện Lớn</span>
+                    <h3 class="news-title">20/11 Năm Thứ 2</h3>
+                    <p class="news-desc">Những khoảnh khắc cùng thầy Khiêm, ghế bàn và những buổi học thân quen.</p>
+                    <a href="#" class="read-more">Đọc tiếp →</a>
+                </div>
+            </div>
+
+            <!-- Bài 18 -->
+            <div class="news-item">
+                <img src="Images/mm14.jpg" class="news-img" loading="lazy">
+                <div class="news-content">
+                    <span class="date-tag">Những tháng năm không quên</span>
+                    <span class="cat-tag">Sự Kiện Lớn</span>
+                    <h3 class="news-title">Ngày Hội Địa Lý</h3>
+                    <p class="news-desc">Ngày K5A8 phá đảo khối xã hội với kiến thức đa quốc gia.</p>
+                    <a href="#" class="read-more">Đọc tiếp →</a>
+                </div>
+            </div>
+
+            <!-- Bài 19 -->
+            <div class="news-item">
+                <img src="Images/mm15.jpg" class="news-img" loading="lazy">
+                <div class="news-content">
+                    <span class="date-tag">Những tháng năm không quên</span>
+                    <span class="cat-tag">Sự Kiện Lớn</span>
+                    <h3 class="news-title">Hội Chợ Xuân</h3>
+                    <p class="news-desc">Cùng nhau khám phá đặc sản Tết của nhiều vùng miền.</p>
+                    <a href="#" class="read-more">Đọc tiếp →</a>
+                </div>
+            </div>
+
+            <!-- Bài 20 -->
+            <div class="news-item">
+                <img src="Images/Fschoolympic.jpg" class="news-img" loading="lazy">
+                <div class="news-content">
+                    <span class="date-tag">Những tháng năm không quên</span>
+                    <span class="cat-tag">THỂ THAO</span>
+                    <h3 class="news-title">Fschoolympic</h3>
+                    <p class="news-desc">Tinh thần thể thao rực lửa của các vận động viên lớp mình.</p>
+                    <a href="#" class="read-more">Đọc tiếp →</a>
+                </div>
+            </div>
+
+            <!-- Bài 21 -->
+            <div class="news-item">
+                <img src="Images/mm16.jpg" class="news-img" loading="lazy">
+                <div class="news-content">
+                    <span class="date-tag">Những tháng năm không quên</span>
+                    <span class="cat-tag">ĐỜI SỐNG</span>
+                    <h3 class="news-title">Tiệc Tất Niên</h3>
+                    <p class="news-desc">Khoảnh khắc vui vẻ cùng nhau trước khi bước vào kì nghỉ Tết.</p>
+                    <a href="#" class="read-more">Đọc tiếp →</a>
+                </div>
+            </div>
+
+            <!-- Bài 22 -->
+            <div class="news-item">
+                <img src="Images/mm17.jpg" class="news-img" loading="lazy">
+                <div class="news-content">
+                    <span class="date-tag">Những tháng năm không quên</span>
+                    <span class="cat-tag">VĂN NGHỆ</span>
+                    <h3 class="news-title">Thi Võ Nhạc</h3>
+                    <p class="news-desc">Nơi tài năng nghệ thuật và tinh thần võ đạo được bộc lộ.</p>
+                    <a href="#" class="read-more">Đọc tiếp →</a>
+                </div>
+            </div>
+
+            <!-- Bài 23 -->
+            <div class="news-item">
+                <img src="Images/mm18.jpg" class="news-img" loading="lazy">
+                <div class="news-content">
+                    <span class="date-tag">Những tháng năm không quên</span>
+                    <span class="cat-tag">KỶ NIỆM</span>
+                    <h3 class="news-title">Liên Hoan Cuối Năm</h3>
+                    <p class="news-desc">Buổi ăn cuối cùng trước khi nghỉ hè và bất ngờ dành cho thầy.</p>
+                    <a href="#" class="read-more">Đọc tiếp →</a>
+                </div>
+            </div>
+
+            <!-- Bài 24 -->
+            <div class="news-item">
+                <img src="Images/mm19.jpg" class="news-img" loading="lazy">
+                <div class="news-content">
+                    <span class="date-tag">Những tháng năm không quên</span>
+                    <span class="cat-tag">VINH DANH</span>
+                    <h3 class="news-title">Lễ Tổng Kết</h3>
+                    <p class="news-desc">Khoảnh khắc đáng nhớ khi K5A8 cùng nhau bước lên sân khấu nhận thưởng.</p>
+                    <a href="#" class="read-more">Đọc tiếp →</a>
+                </div>
+            </div>
+
+            <!-- Bài 25 -->
+            <div class="news-item">
+                <img src="Images/mm20.jpg" class="news-img" loading="lazy">
+                <div class="news-content">
+                    <span class="date-tag">Những tháng năm không quên</span>
+                    <span class="cat-tag">NĂM CUỐI</span>
+                    <h3 class="news-title">Nhập Học Năm 3</h3>
+                    <p class="news-desc">Lần thứ ba cũng như là lần cuối cùng chúng ta có cảm giác này.</p>
+                    <a href="#" class="read-more">Đọc tiếp →</a>
+                </div>
+            </div>
+
+            <!-- Bài 26 -->
+            <div class="news-item">
+                <img src="Images/mm21.jpg" class="news-img" loading="lazy">
+                <div class="news-content">
+                    <span class="date-tag">Những tháng năm không quên</span>
+                    <span class="cat-tag">HOẠT ĐỘNG</span>
+                    <h3 class="news-title">Team Building Cuối</h3>
+                    <p class="news-desc">Khoảnh khắc K5A8 cùng nhau hợp sức giải đố các trò chơi.</p>
+                    <a href="#" class="read-more">Đọc tiếp →</a>
+                </div>
+            </div>
+
+            <!-- Bài 27 -->
+            <div class="news-item">
+                <img src="Images/mm22.jpg" class="news-img" loading="lazy">
+                <div class="news-content">
+                    <span class="date-tag">Những tháng năm không quên</span>
+                    <span class="cat-tag">SỰ KIỆN</span>
+                    <h3 class="news-title">Khai Giảng Lần Cuối</h3>
+                    <p class="news-desc">Cảm giác đầy tình yêu thương và ấm áp dành cho nhau vẫn vẹn nguyên.</p>
+                    <a href="#" class="read-more">Đọc tiếp →</a>
+                </div>
+            </div>
+
+            <!-- Bài 28 -->
+            <div class="news-item">
+                <img src="Images/mm23.jpg" class="news-img" loading="lazy">
+                <div class="news-content">
+                    <span class="date-tag">Những tháng năm không quên</span>
+                    <span class="cat-tag">NGOẠI KHÓA</span>
+                    <h3 class="news-title">Xem Phim Mưa Đỏ</h3>
+                    <p class="news-desc">Cùng K5A8 lật lại những trang sử hào hùng của dân tộc.</p>
+                    <a href="#" class="read-more">Đọc tiếp →</a>
+                </div>
+            </div>
+
+            <!-- CÁC BÀI COMING SOON ĐỂ ĐỦ 50 -->
+            <div class="news-item"><img src="Images/mm24.jpg" class="news-img" loading="lazy"><div class="news-content"><span class="date-tag">Future</span><h3 class="news-title">Sự Kiện Sắp Tới 29</h3><p class="news-desc">Đang cập nhật...</p></div></div>
+            <div class="news-item"><img src="Images/mm25.jpg" class="news-img" loading="lazy"><div class="news-content"><span class="date-tag">Future</span><h3 class="news-title">Sự Kiện Sắp Tới 30</h3><p class="news-desc">Đang cập nhật...</p></div></div>
+            <div class="news-item"><img src="Images/mm26.jpg" class="news-img" loading="lazy"><div class="news-content"><span class="date-tag">Future</span><h3 class="news-title">Sự Kiện Sắp Tới 31</h3><p class="news-desc">Đang cập nhật...</p></div></div>
+            <div class="news-item"><img src="Images/mm27.jpg" class="news-img" loading="lazy"><div class="news-content"><span class="date-tag">Future</span><h3 class="news-title">Sự Kiện Sắp Tới 32</h3><p class="news-desc">Đang cập nhật...</p></div></div>
+            <div class="news-item"><img src="Images/mm28.jpg" class="news-img" loading="lazy"><div class="news-content"><span class="date-tag">Future</span><h3 class="news-title">Sự Kiện Sắp Tới 33</h3><p class="news-desc">Đang cập nhật...</p></div></div>
+            <div class="news-item"><img src="Images/mm29.jpg" class="news-img" loading="lazy"><div class="news-content"><span class="date-tag">Future</span><h3 class="news-title">Sự Kiện Sắp Tới 34</h3><p class="news-desc">Đang cập nhật...</p></div></div>
+            <div class="news-item"><img src="Images/mm30.jpg" class="news-img" loading="lazy"><div class="news-content"><span class="date-tag">Future</span><h3 class="news-title">Sự Kiện Sắp Tới 35</h3><p class="news-desc">Đang cập nhật...</p></div></div>
+            <div class="news-item"><img src="Images/mm31.jpg" class="news-img" loading="lazy"><div class="news-content"><span class="date-tag">Future</span><h3 class="news-title">Sự Kiện Sắp Tới 36</h3><p class="news-desc">Đang cập nhật...</p></div></div>
+            <div class="news-item"><img src="Images/mm32.jpg" class="news-img" loading="lazy"><div class="news-content"><span class="date-tag">Future</span><h3 class="news-title">Sự Kiện Sắp Tới 37</h3><p class="news-desc">Đang cập nhật...</p></div></div>
+            <div class="news-item"><img src="Images/mm33.jpg" class="news-img" loading="lazy"><div class="news-content"><span class="date-tag">Future</span><h3 class="news-title">Sự Kiện Sắp Tới 38</h3><p class="news-desc">Đang cập nhật...</p></div></div>
+            <div class="news-item"><img src="Images/mm34.jpg" class="news-img" loading="lazy"><div class="news-content"><span class="date-tag">Future</span><h3 class="news-title">Sự Kiện Sắp Tới 39</h3><p class="news-desc">Đang cập nhật...</p></div></div>
+            <div class="news-item"><img src="Images/mm35.jpg" class="news-img" loading="lazy"><div class="news-content"><span class="date-tag">Future</span><h3 class="news-title">Sự Kiện Sắp Tới 40</h3><p class="news-desc">Đang cập nhật...</p></div></div>
+            <div class="news-item"><img src="Images/mm1.jpg" class="news-img" loading="lazy"><div class="news-content"><span class="date-tag">Future</span><h3 class="news-title">Sự Kiện Sắp Tới 41</h3><p class="news-desc">Đang cập nhật...</p></div></div>
+            <div class="news-item"><img src="Images/mm2.jpg" class="news-img" loading="lazy"><div class="news-content"><span class="date-tag">Future</span><h3 class="news-title">Sự Kiện Sắp Tới 42</h3><p class="news-desc">Đang cập nhật...</p></div></div>
+            <div class="news-item"><img src="Images/mm3.jpg" class="news-img" loading="lazy"><div class="news-content"><span class="date-tag">Future</span><h3 class="news-title">Sự Kiện Sắp Tới 43</h3><p class="news-desc">Đang cập nhật...</p></div></div>
+            <div class="news-item"><img src="Images/mm4.jpg" class="news-img" loading="lazy"><div class="news-content"><span class="date-tag">Future</span><h3 class="news-title">Sự Kiện Sắp Tới 44</h3><p class="news-desc">Đang cập nhật...</p></div></div>
+            <div class="news-item"><img src="Images/mm5.jpg" class="news-img" loading="lazy"><div class="news-content"><span class="date-tag">Future</span><h3 class="news-title">Sự Kiện Sắp Tới 45</h3><p class="news-desc">Đang cập nhật...</p></div></div>
+            <div class="news-item"><img src="Images/mm6.jpg" class="news-img" loading="lazy"><div class="news-content"><span class="date-tag">Future</span><h3 class="news-title">Sự Kiện Sắp Tới 46</h3><p class="news-desc">Đang cập nhật...</p></div></div>
+            <div class="news-item"><img src="Images/mm7.jpg" class="news-img" loading="lazy"><div class="news-content"><span class="date-tag">Future</span><h3 class="news-title">Sự Kiện Sắp Tới 47</h3><p class="news-desc">Đang cập nhật...</p></div></div>
+            <div class="news-item"><img src="Images/mm8.jpg" class="news-img" loading="lazy"><div class="news-content"><span class="date-tag">Future</span><h3 class="news-title">Sự Kiện Sắp Tới 48</h3><p class="news-desc">Đang cập nhật...</p></div></div>
+            <div class="news-item"><img src="Images/mm9.jpg" class="news-img" loading="lazy"><div class="news-content"><span class="date-tag">Future</span><h3 class="news-title">Sự Kiện Sắp Tới 49</h3><p class="news-desc">Đang cập nhật...</p></div></div>
+            <div class="news-item"><img src="Images/mm10.jpg" class="news-img" loading="lazy"><div class="news-content"><span class="date-tag">Future</span><h3 class="news-title">Sự Kiện Sắp Tới 50</h3><p class="news-desc">Đang cập nhật...</p></div></div>
+
+        </div>
+    </div>
+
+    <script>
+        const menuBtn = document.getElementById('menu-btn');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+        function toggleMenu() { sidebar.classList.toggle('active'); overlay.classList.toggle('active'); }
+        function closeMenu() { sidebar.classList.remove('active'); overlay.classList.remove('active'); }
+        menuBtn.addEventListener('click', toggleMenu); overlay.addEventListener('click', closeMenu);
+    </script>
+</body>
+</html>

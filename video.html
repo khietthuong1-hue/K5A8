@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>K5A8 Gallery - Video & Ảnh</title>
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/3074/3074767.png">
+    
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* --- GIAO DIỆN TIKTOK STYLE --- */
+        :root {
+            --primary: #fe2c55;
+            --blue: #25f4ee;
+            --dark: #000000;
+            --text: #ffffff;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            background-color: var(--dark);
+            color: var(--text);
+            font-family: 'Montserrat', sans-serif;
+            overflow: hidden; /* Chặn cuộn trang, chỉ cuộn feed */
+            width: 100vw; height: 100vh;
+        }
+
+        /* --- VIDEO FEED --- */
+        #media-feed {
+            width: 100%; height: 100%;
+            overflow-y: scroll;
+            scroll-snap-type: y mandatory;
+            scroll-behavior: smooth;
+        }
+        #media-feed::-webkit-scrollbar { display: none; }
+
+        .media-item {
+            width: 100%; height: 100vh;
+            scroll-snap-align: start;
+            position: relative; background: #111;
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden;
+        }
+
+        /* Hiển thị Video/Ảnh */
+        video, img.main-media { 
+            width: 100%; height: 100%; 
+            object-fit: contain; /* Dùng contain để thấy hết ảnh/video */
+            z-index: 2;
+            position: relative;
+        } 
+        
+        /* Hiệu ứng nền mờ cho ảnh (để lấp đầy khoảng đen) */
+        .blur-bg {
+            position: absolute; inset: 0;
+            background-size: cover; background-position: center;
+            filter: blur(20px) brightness(0.5);
+            z-index: 1; transform: scale(1.2);
+        }
+
+        /* --- UI OVERLAY --- */
+        .overlay-layer {
+            position: absolute; inset: 0; pointer-events: none; z-index: 5;
+            background: linear-gradient(180deg, rgba(0,0,0,0) 70%, rgba(0,0,0,0.8) 100%);
+        }
+
+        .info-area {
+            position: absolute; bottom: 70px; left: 15px; width: 75%; z-index: 10;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.8); pointer-events: auto;
+        }
+        .user-tag { font-weight: 700; font-size: 18px; margin-bottom: 5px; display: block; color: white; }
+        .caption { font-size: 15px; line-height: 1.4; margin-bottom: 10px; opacity: 0.9; }
+        .music-tag { font-size: 13px; display: flex; align-items: center; gap: 5px; }
+        
+        /* SIDEBAR ACTIONS */
+        .sidebar {
+            position: absolute; bottom: 80px; right: 10px; z-index: 10;
+            display: flex; flex-direction: column; gap: 20px; align-items: center;
+            pointer-events: auto;
+        }
+        .action-btn { cursor: pointer; text-align: center; transition: transform 0.2s; }
+        .action-btn:active { transform: scale(0.9); }
+        .icon-circle {
+            width: 45px; height: 45px; background: rgba(255,255,255,0.15); backdrop-filter: blur(5px);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 24px; margin-bottom: 4px; color: white; transition: 0.3s;
+        }
+        .count { font-size: 12px; font-weight: 600; }
+        
+        .liked .icon-circle { color: var(--primary); background: rgba(255,255,255,0.2); }
+
+        /* DISC ANIMATION */
+        .disc-wrapper { margin-top: 10px; position: relative; }
+        .disc {
+            width: 45px; height: 45px; background: #222; border-radius: 50%;
+            border: 8px solid #111; animation: spin 5s linear infinite;
+            display: flex; justify-content: center; align-items: center;
+        }
+        .disc i { font-size: 12px; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* BOTTOM NAV */
+        .nav-bot {
+            position: fixed; bottom: 0; width: 100%; height: 50px; background: #000;
+            border-top: 1px solid #222; display: flex; justify-content: space-around; align-items: center; z-index: 100;
+        }
+        .nav-add-btn {
+            width: 40px; height: 28px; background: white; border-radius: 6px;
+            display: flex; align-items: center; justify-content: center; opacity: 0.8;
+        }
+
+        /* LOADING & PLAY ICON */
+        .loader {
+            position: absolute; width: 40px; height: 40px; z-index: 3; top: 50%; left: 50%; margin: -20px;
+            border: 4px solid rgba(255,255,255,0.2); border-top: 4px solid var(--blue);
+            border-radius: 50%; animation: spin 0.8s linear infinite;
+        }
+        .center-play {
+            position: absolute; font-size: 60px; color: rgba(255,255,255,0.5); z-index: 4;
+            display: none; pointer-events: none; top: 50%; left: 50%; transform: translate(-50%, -50%);
+        }
+        
+        /* Ẩn nếu lỗi */
+        .hidden-slide { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <!-- FEED CONTAINER -->
+    <div id="media-feed">
+        <!-- Javascript sẽ tự động điền Video và Ảnh vào đây -->
+    </div>
+
+    <!-- NAVIGATION -->
+    <div class="nav-bot">
+       <a href= index.html> <i class="fas fa-home text-white text-xl"></i></a>
+         <a href= news.html><i class="fas fa-search text-gray-500 text-xl"></i></a>
+        <div class="nav-add-btn"><i class="fas fa-plus text-black font-bold"></i></div>
+        <i class="fas fa-comment-dots text-gray-500 text-xl"></i>
+        <i class="fas fa-user text-gray-500 text-xl"></i>
+    </div>
+
+    <script>
+        // === CẤU HÌNH ADMIN (CHỈNH SỬA Ở ĐÂY) ===
+        const CONFIG = {
+            // 1. Cấu hình Video
+            videos: {
+                total: 51,           // Số lượng video (1.mp4 -> 150.mp4)
+                folder: 'Videos',     // Tên thư mục chứa video
+                ext: '.mp4'           // Đuôi file (.mp4 hoặc .MOV)
+            },
+            // 2. Cấu hình Ảnh
+            photos: {
+                total: 26,           // Số lượng ảnh (1.jpg -> 150.jpg)
+                folder: 'Photos',     // Tên thư mục chứa ảnh
+                ext: '.jpg'           // Đuôi file (.jpg, .png...)
+            }
+        };
+
+        const FAKE_DB = {
+            users: ["khiet_k5a8", "dangcapnhat_lop", "minh_khiem_k5a8", "camera_chay_bang_com", "tri_nhan_ngu_dot"],
+            captions: ["Kỷ niệm này sẽ nhớ mãi ❤️", "10 điểm không có nhưng!", "Ai còn nhớ hôm này không?", "Thanh xuân vườn trường...", "Xinh lung linh lun ✨"],
+            music: "K5A8 Original Sound"
+        };
+
+        const feed = document.getElementById('media-feed');
+
+        function init() {
+            let mediaList = [];
+
+            // 1. Tạo danh sách Video
+            for (let i = 1; i <= CONFIG.videos.total; i++) {
+                mediaList.push({
+                    type: 'video',
+                    src: `${CONFIG.videos.folder}/${i}${CONFIG.videos.ext}`,
+                    id: `v_${i}`
+                });
+            }
+
+            // 2. Tạo danh sách Ảnh
+            for (let i = 1; i <= CONFIG.photos.total; i++) {
+                mediaList.push({
+                    type: 'photo',
+                    src: `${CONFIG.photos.folder}/${i}${CONFIG.photos.ext}`,
+                    id: `p_${i}`
+                });
+            }
+
+            // 3. Xáo trộn ngẫu nhiên Video và Ảnh với nhau
+            mediaList.sort(() => Math.random() - 0.5);
+
+            // 4. Hiển thị
+            mediaList.forEach(item => {
+                createSlide(item);
+            });
+
+            // 5. Bắt đầu quan sát (để tự chạy video khi lướt tới)
+            setTimeout(startObserver, 500);
+        }
+
+        function createSlide(item) {
+            // Random dữ liệu
+            const user = FAKE_DB.users[Math.floor(Math.random() * FAKE_DB.users.length)];
+            const caption = FAKE_DB.captions[Math.floor(Math.random() * FAKE_DB.captions.length)];
+            const likes = Math.floor(Math.random() * 2000) + 100;
+
+            const div = document.createElement('div');
+            div.className = 'media-item';
+
+            // HTML nội dung (Khác nhau giữa Ảnh và Video)
+            let mediaHTML = '';
+            
+            if (item.type === 'video') {
+                mediaHTML = `
+                    <div class="loader"></div>
+                    <video loop playsinline preload="none" onerror="this.closest('.media-item').classList.add('hidden-slide')">
+                        <source src="${item.src}" type="video/mp4">
+                    </video>
+                    <i class="fas fa-play center-play"></i>
+                `;
+            } else {
+                mediaHTML = `
+                    <div class="blur-bg" style="background-image: url('${item.src}')"></div>
+                    <img class="main-media" src="${item.src}" loading="lazy" onerror="this.closest('.media-item').classList.add('hidden-slide')">
+                `;
+            }
+
+            div.innerHTML = `
+                ${mediaHTML}
+                <div class="overlay-layer"></div>
+
+                <div class="info-area">
+                    <span class="user-tag">@${user}</span>
+                    <p class="caption">${caption}</p>
+                    <div class="music-tag"><i class="fas fa-music"></i> ${FAKE_DB.music}</div>
+                </div>
+
+                <div class="sidebar">
+                    <div class="action-btn" onclick="toggleLike(this)">
+                        <div class="icon-circle"><i class="fas fa-heart"></i></div>
+                        <span class="count">${likes}</span>
+                    </div>
+                    <div class="action-btn">
+                        <div class="icon-circle"><i class="fas fa-comment-dots"></i></div>
+                        <span class="count">Bình luận</span>
+                    </div>
+                    <div class="action-btn">
+                        <div class="icon-circle"><i class="fas fa-share"></i></div>
+                        <span class="count">Share</span>
+                    </div>
+                    <div class="disc-wrapper">
+                        <div class="disc"><i class="fas fa-compact-disc text-white"></i></div>
+                    </div>
+                </div>
+            `;
+
+            // Thêm sự kiện Click
+            const overlay = div.querySelector('.overlay-layer');
+            const likeBtn = div.querySelector('.action-btn');
+            
+            let lastTap = 0;
+            overlay.addEventListener('click', (e) => {
+                const currentTime = new Date().getTime();
+                const tapLength = currentTime - lastTap;
+                
+                if (tapLength < 300 && tapLength > 0) {
+                    // Double Tap -> Like
+                    toggleLike(likeBtn, true);
+                    createHeartEffect(e.clientX, e.clientY);
+                } else {
+                    // Single Tap -> Play/Pause (Chỉ áp dụng cho Video)
+                    if (item.type === 'video') {
+                        const video = div.querySelector('video');
+                        const playIcon = div.querySelector('.center-play');
+                        if (video.paused) {
+                            video.play();
+                            playIcon.style.display = 'none';
+                        } else {
+                            video.pause();
+                            playIcon.style.display = 'block';
+                        }
+                    }
+                }
+                lastTap = currentTime;
+            });
+
+            feed.appendChild(div);
+        }
+
+        // === LOGIC TỰ ĐỘNG PHÁT VIDEO ===
+        function startObserver() {
+            const options = { root: feed, threshold: 0.6 };
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    const slide = entry.target;
+                    const video = slide.querySelector('video');
+                    
+                    if (entry.isIntersecting) {
+                        // Nếu là video thì chạy
+                        if (video) {
+                            video.load();
+                            const playPromise = video.play();
+                            const loader = slide.querySelector('.loader');
+                            if (playPromise !== undefined) {
+                                playPromise.then(() => { if(loader) loader.style.display = 'none'; })
+                                .catch(() => { 
+                                    if(loader) loader.style.display = 'none';
+                                    slide.querySelector('.center-play').style.display = 'block';
+                                });
+                            }
+                        }
+                    } else {
+                        // Nếu lướt qua thì dừng
+                        if (video) {
+                            video.pause();
+                            video.currentTime = 0;
+                        }
+                    }
+                });
+            }, options);
+
+            document.querySelectorAll('.media-item').forEach(v => observer.observe(v));
+        }
+
+        // === UI EFFECTS ===
+        window.toggleLike = (btn, forceLike = false) => {
+            if (forceLike) {
+                if (!btn.classList.contains('liked')) btn.classList.add('liked');
+            } else {
+                btn.classList.toggle('liked');
+            }
+            const icon = btn.querySelector('.icon-circle');
+            icon.style.transform = "scale(1.2)";
+            setTimeout(() => icon.style.transform = "scale(1)", 200);
+        };
+
+        function createHeartEffect(x, y) {
+            const heart = document.createElement('i');
+            heart.className = 'fas fa-heart';
+            heart.style.position = 'fixed';
+            heart.style.left = x + 'px';
+            heart.style.top = y + 'px';
+            heart.style.color = 'var(--primary)';
+            heart.style.fontSize = '80px';
+            heart.style.transform = 'translate(-50%, -50%) scale(0)';
+            heart.style.transition = 'all 0.6s ease-out';
+            heart.style.zIndex = '1000';
+            heart.style.pointerEvents = 'none';
+            heart.style.textShadow = '0 5px 15px rgba(0,0,0,0.3)';
+            document.body.appendChild(heart);
+            requestAnimationFrame(() => {
+                heart.style.transform = 'translate(-50%, -150%) scale(1.5)';
+                heart.style.opacity = '0';
+            });
+            setTimeout(() => heart.remove(), 600);
+        }
+
+        init();
+    </script>
+</body>
+</html>

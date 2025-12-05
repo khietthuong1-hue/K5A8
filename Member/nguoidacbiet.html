@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bùi Nguyễn Nam Phương - Ngôi Sao K5A8</title>
+    
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700&family=Quicksand:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ======================================= */
+        /* === BIẾN CSS VÀ CÀI ĐẶT CHUNG (TRẮNG XANH) === */
+        /* ======================================= */
+        :root {
+            --primary-color: #00bcd4; /* Accent: Bright Cyan/Turquoise */
+            --secondary-color: #0D47A1; /* Deep Blue: Header/Title/Contrast */
+            --text-dark: #212121; /* Dark text on light background */
+            --text-light: #ffffff; /* Light text on dark background */
+            --bg-main: #F0F8FF; /* Main Background: AliceBlue (Trắng xanh) */
+            --bg-card: #ffffff; /* Card Background: White */
+            --bg-surface: #E3F2FD; /* Lighter Blue Surface/Subtle BG */
+        }
+        
+        html {
+            background-color: var(--bg-main); /* Nền chính màu trắng xanh */
+        }
+
+        body {
+            font-family: 'Quicksand', sans-serif;
+            margin: 0;
+            line-height: 1.6;
+            color: var(--text-dark); /* Màu chữ mặc định là tối */
+            background: none; 
+            position: relative; 
+            z-index: 1;
+        }
+
+        a { text-decoration: none; color: inherit; }
+
+        .container {
+            max-width: 1000px;
+            margin: auto;
+            padding: 20px;
+        }
+
+        h1, h2, h3, header .logo {
+            font-family: 'Quicksand', sans-serif;
+            color: var(--secondary-color);
+        }
+        
+        /* ======================================= */
+        /* === HEADER VÀ FOOTER (Màu Xanh Đậm) === */
+        /* ======================================= */
+        header {
+            background: var(--secondary-color); /* Deep Blue Header */
+            padding: 10px 0;
+            border-bottom: 3px solid var(--primary-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        header .logo { color: var(--text-light); }
+        header .nav-links { display: flex; gap: 25px; }
+        header .nav-links a { 
+            color: var(--bg-surface); /* Light Blue links on dark background */
+            transition: color 0.3s, transform 0.2s;
+            position: relative;
+        }
+        header .nav-links a:hover { 
+            color: var(--text-light); /* Chuyển sang trắng khi hover */
+            transform: translateY(-2px);
+        }
+        header .nav-links a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            display: block;
+            margin-top: 5px;
+            right: 0;
+            background: var(--primary-color); /* Gạch chân Cyan */
+            transition: width 0.3s ease;
+        }
+        header .nav-links a:hover::after {
+            width: 100%;
+            left: 0;
+        }
+        .hamburger { display: none; } 
+
+        footer {
+            background: var(--secondary-color);
+            text-align: center;
+            padding: 20px;
+            position: relative;
+            z-index: 2;
+            border-top: 1px solid var(--primary-color);
+            margin-top: 50px;
+            color: var(--bg-surface);
+            font-size: 0.9em;
+        }
+        
+        #svg-sprite {
+            display: none;
+        }
+        
+        /* ======================================= */
+        /* === PRELOADER (Chân Mèo Trắng Xanh) === */
+        /* ======================================= */
+        #preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-main); /* Nền preloader trắng xanh */
+            z-index: 9999;
+            transition: opacity 0.5s ease-in-out;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .ajax-loader {
+            transform-origin: 50% 50%;
+            transform: rotate(90deg);
+            font-size: 65px; 
+            width: 1em;
+            height: 3em;
+            color: var(--secondary-color); /* Paw icon màu xanh đậm */
+        }
+
+        /* Các keyframes và CSS paw giữ nguyên để đảm bảo hiệu ứng mượt mà */
+        .ajax-loader .paw {
+            width: 1em;
+            height: 1em;
+            -webkit-animation: 3500ms pawAnimation ease-in-out infinite;
+            animation: 3500ms pawAnimation ease-in-out infinite;
+            opacity: 0;
+        }
+
+        .ajax-loader .paw svg { width: 100%; height: 100%; }
+        .ajax-loader .paw .icon { fill: currentColor; }
+        .ajax-loader .paw:nth-child(odd) { transform: rotate(-10deg); }
+        .ajax-loader .paw:nth-child(even) { transform: rotate(10deg) translate(125%, 0); }
+        
+        .ajax-loader .paw:nth-child(1) { -webkit-animation-delay: 2.0s; animation-delay: 2.0s; }
+        .ajax-loader .paw:nth-child(2) { -webkit-animation-delay: 1.6s; animation-delay: 1.6s; }
+        .ajax-loader .paw:nth-child(3) { -webkit-animation-delay: 1.2s; animation-delay: 1.2s; }
+        .ajax-loader .paw:nth-child(4) { -webkit-animation-delay: 0.8s; animation-delay: 0.8s; }
+        .ajax-loader .paw:nth-child(5) { -webkit-animation-delay: 0.4s; animation-delay: 0.4s; }
+        .ajax-loader .paw:nth-child(6) { -webkit-animation-delay: 0.2s; animation-delay: 0.2s; }
+        .ajax-loader .paw:nth-child(7) { -webkit-animation-delay: 0s; animation-delay: 0s; }
+        
+        @keyframes pawAnimation {
+            0% { opacity: 1; transform: translateY(0); }
+            50% { opacity: 0; transform: translateY(-50px); }
+            100% { opacity: 0; transform: translateY(0); }
+        }
+        
+        /* ======================================= */
+        /* === CSS RIÊNG TRANG BÀI VIẾT (Nổi bật) === */
+        /* ======================================= */
+        .article-detail-section {
+            padding: 40px 30px; 
+            background: var(--bg-card); /* Nền thẻ màu trắng */
+            margin-top: 30px;
+            border-radius: 12px; 
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1); /* Shadow nhẹ nhàng hơn */
+            max-width: 850px; 
+            margin-left: auto;
+            margin-right: auto;
+            z-index: 2; 
+            border: 1px solid var(--bg-surface); /* Viền nhẹ màu xanh nhạt */
+        }
+
+        .article-detail-section h1 {
+            font-size: clamp(2.5em, 5vw, 3.5em); 
+            text-align: center;
+            margin-bottom: 25px;
+            color: var(--secondary-color); /* Tiêu đề màu xanh đậm */
+            text-shadow: 0 0 5px rgba(13, 71, 161, 0.1); 
+            line-height: 1.2;
+        }
+
+        .article-detail-section .author-info {
+            text-align: center;
+            color: var(--text-dark);
+            margin-bottom: 30px;
+            font-style: italic;
+            font-size: 0.9em;
+        }
+
+        .article-detail-section .main-image {
+            width: 100%;
+            max-height: 450px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 40px;
+            box-shadow: 0 0 15px rgba(0, 188, 212, 0.2); 
+            border: 3px solid var(--primary-color);
+        }
+
+        .article-detail-section .content p {
+            font-size: 1.1em;
+            line-height: 1.8;
+            margin-bottom: 20px;
+            color: var(--text-dark);
+        }
+        
+        .article-detail-section .content h3 {
+            color: var(--primary-color); /* Cyan Accent */
+            margin-top: 30px;
+            border-left: 4px solid var(--primary-color);
+            padding-left: 15px;
+            font-size: 1.5em;
+        }
+        
+        .article-detail-section .content ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        
+        .article-detail-section .content ul li {
+            background: var(--bg-surface); /* Màu xanh nhạt cho list item */
+            color: var(--text-dark); /* Chữ đen trên nền xanh nhạt */
+            margin-bottom: 10px;
+            padding: 12px 20px;
+            border-radius: 6px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            position: relative;
+            padding-left: 35px;
+        }
+        
+        .article-detail-section .content ul li:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        }
+        
+        .article-detail-section .content ul li::before {
+            content: '🌊'; /* Sóng biển/dấu hiệu dưới đại dương */
+            color: var(--secondary-color); /* Icon màu xanh đậm */
+            font-size: 1.2em;
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        
+        /* ======================================= */
+        /* === tsParticles Background (Bọt Biển) === */
+        /* ======================================= */
+        #tsparticles {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0;
+        }
+        
+        /* Back to top button style */
+        #back-to-top {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 99;
+            border: none;
+            outline: none;
+            background-color: var(--primary-color);
+            color: white;
+            cursor: pointer;
+            padding: 15px;
+            border-radius: 50%;
+            font-size: 18px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s, opacity 0.3s;
+        }
+
+        #back-to-top:hover {
+            background-color: var(--secondary-color);
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 600px) {
+            header .nav-links {
+                display: none;
+            }
+            header .container {
+                justify-content: center;
+            }
+            .article-detail-section {
+                padding: 20px 15px;
+                margin-top: 20px;
+            }
+            .article-detail-section h1 {
+                font-size: 2em;
+            }
+            .article-detail-section .content p {
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <svg id="svg-sprite">
+        <symbol id="paw" viewBox="0 0 249 209.32">
+            <ellipse cx="27.917" cy="106.333" stroke-width="0" rx="27.917" ry="35.833" />
+            <ellipse cx="84.75" cy="47.749" stroke-width="0" rx="34.75" ry="47.751" />
+            <ellipse cx="162" cy="47.749" stroke-width="0" rx="34.75" ry="47.751" />
+            <ellipse cx="221.083" cy="106.333" stroke-width="0" rx="27.917" ry="35.833" />
+            <path stroke-width="0" d="M43.98 165.39s9.76-63.072 76.838-64.574c0 0 71.082-6.758 83.096 70.33 0 0 2.586 19.855-12.54 31.855 0 0-15.75 17.75-43.75-6.25 0 0-7.124-8.374-24.624-7.874 0 0-12.75-.125-21.5 6.625 0 0-16.375 18.376-37.75 12.75 0 0-28.29-7.72-19.77-42.86z" />
+        </symbol>
+    </svg>
+
+    <div id="preloader">
+        <div class="ajax-loader">
+            <div class="paw"><svg class="icon"><use xlink:href="#paw" /></svg></div>
+            <div class="paw"><svg class="icon"><use xlink:href="#paw" /></svg></div>
+            <div class="paw"><svg class="icon"><use xlink:href="#paw" /></svg></div>
+            <div class="paw"><svg class="icon"><use xlink:href="#paw" /></svg></div>
+            <div class="paw"><svg class="icon"><use xlink:href="#paw" /></svg></div>
+            <div class="paw"><svg class="icon"><use xlink:href="#paw" /></svg></div>
+            <div class="paw"><svg class="icon"><use xlink:href="#paw" /></svg></div>
+        </div>
+    </div>
+    
+    <div id="tsparticles"></div>
+
+    <header>
+        <div class="container">
+            <div class="logo">HUMANS OF K5A8</div>
+            <nav class="nav-links" id="nav-links">
+                <a href="index.html">Trang chủ</a>
+                <a href="#">Memories</a>
+                <a href="#">Thành tích</a>
+                <a href="#">Teacher</a>
+                <a href="#">Contact</a>
+            </nav>
+            </div>
+    </header>
+
+    <main class="container">
+        <section class="article-detail-section" data-aos="fade-up">
+            <h1>Bùi Nguyễn Nam Phương</h1>
+            <p class="author-info">Bởi: Thường Khiết | Ngày đăng: 15/11/2025</p>
+            
+            <img src="Avatar/dethuongthe.jpg" onerror="this.src='https://placehold.co/400x300/00b4d8/ffffff?text=K5A8'" alt="Ảnh Bùi Nguyễn Nam Phương" class="main-image">
+            
+            <div class="content">
+                <p><strong>Bùi Nguyễn Nam Phương</strong>, một cái tên gắn liền với sự tươi mới và năng lượng dồi dào như sóng biển K5A8. Cô bạn luôn nổi bật với tinh thần lạc quan và sự thông minh, giống như một viên ngọc quý tỏa sáng dưới lòng đại dương tri thức.</p>
+                
+                <p>Dù là trong những buổi học chuyên sâu hay các hoạt động tình nguyện, Nam Phương luôn thể hiện sự nhiệt huyết không ngừng nghỉ. Khả năng cân bằng giữa học tập xuất sắc và sự tham gia tích cực vào các hoạt động tập thể đã khiến cô bạn trở thành nguồn cảm hứng lớn trong lớp.</p>
+
+                <h3>Tính cách và đặc điểm:</h3>
+                <ul>
+                    <li>Là người mà Thường Khiết yêu thương nhất.</li>
+                    <li>Xinh xắn, dễ thương, đáng yêu.</li>
+                    <li>Vui tính, hòa đồng.</li>
+                    <li>Luôn sẵn lòng giúp đỡ bạn bè trong học tập và cuộc sống.</li>
+                </ul>
+
+                <p>Với sự nhiệt huyết và tài năng của mình, Bùi Nguyễn Nam Phương thực sự là một ngôi sao không chỉ của K5A8 mà còn là nguồn động viên cho Thường Khiết. Chắc chắn rằng, cô bạn sẽ tiếp tục gặt hái được nhiều thành công hơn nữa trong tương lai.</p>
+
+                <p>Hãy cùng chúc cho Nam Phương luôn giữ vững phong độ và tiếp tục tỏa sáng trên hành trình chinh phục những ước mơ của mình nhé!</p>
+            </div>
+        </section>
+    </main>
+    
+    <footer>
+        <p>   © 2025 K5A8 MEMORIES.| Powered by The K5A8 Media Team.</p>
+    </footer>
+    
+    <button id="back-to-top" title="Lên đầu trang">&uarr;</button>
+
+    <script src="https://cdn.jsdelivr.net/npm/tsparticles@3.5.0/tsparticles.bundle.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+    <script>
+        // === KHỞI TẠO PRELOADER VÀ AOS ===
+        window.addEventListener('load', function() {
+            var preloader = document.getElementById('preloader');
+            var minDisplayTime = 3000; // 3 giây để hiệu ứng chân mèo có thời gian hiển thị đầy đủ
+            
+            AOS.init({
+                duration: 1200,
+                once: true,
+            });
+
+            setTimeout(function() {
+                preloader.style.opacity = '0';
+                
+                setTimeout(function() {
+                    preloader.style.display = 'none';
+                }, 500); // Khớp với transition trong CSS
+
+            }, minDisplayTime);
+        });
+
+        // === KHỞI TẠO tsParticles (Hiệu ứng Bọt Biển/Bong Bóng) ===
+        tsParticles.load({
+            id: "tsparticles",
+            options: {
+                // Đã xóa fullScreen: { enable: false } vì div đã có position fixed
+                background: { color: { value: "transparent" } },
+                particles: {
+                    number: { value: 120, density: { enable: true, value_area: 800 } },
+                    // Màu sắc bong bóng/bọt biển: Các tông màu xanh dương nhạt cho nền trắng
+                    color: { value: ["#4FC3F7", "#81D4FA", "#B3E5FC"] }, 
+                    shape: { type: "circle" },
+                    opacity: { value: 0.6, random: true, anim: { enable: true, speed: 0.8, opacity_min: 0.1, sync: false } },
+                    size: { value: 3, random: true, anim: { enable: false } },
+                    // Mô phỏng bọt khí nổi lên: Hướng lên trên (top)
+                    move: { enable: true, speed: 1, direction: "top", random: true, straight: false, out_mode: "out", bounce: false, }, 
+                    links: { enable: false }
+                },
+                interactivity: {
+                    events: { onhover: { enable: true, mode: "bubble" }, onclick: { enable: true, mode: "push" } },
+                    modes: { bubble: { distance: 100, duration: 2, size: 7, opacity: 0.8 }, push: { quantity: 4 } }
+                },
+                retina_detect: true,
+            },
+        });
+
+        // === XỬ LÝ NÚT LÊN ĐẦU TRANG ===
+        const backToTopBtn = document.getElementById('back-to-top');
+        if (backToTopBtn) {
+            window.addEventListener('scroll', () => {
+                if (window.pageYOffset > 300) {
+                    backToTopBtn.style.display = 'block';
+                } else {
+                    backToTopBtn.style.display = 'none';
+                }
+            });
+            backToTopBtn.addEventListener('click', () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        }
+    </script>
+
+</body>
+</html>

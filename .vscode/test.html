@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale1.0">
+    <title>Preloader Dấu Chân Mèo (Căn giữa & Lớn hơn)</title>
+    <style>
+        #svg-sprite {
+            display: none;
+        }
+
+        /* * 1. ĐIỀU CHỈNH PRELOADER ĐỂ CĂN GIỮA * */
+        #preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #fff;
+            z-index: 9999;
+            transition: opacity 0.5s ease-in-out;
+            
+            /* Thêm 3 dòng này để căn giữa nội dung bên trong */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* * 2. ĐIỀU CHỈNH CSS CỦA BẠN * */
+        .ajax-loader {
+            /* Xóa các thuộc tính position, top, left vì flexbox đã lo việc căn giữa */
+            /* position: absolute; */
+            /* top: 25%; */
+            /* left: 50%; */
+            
+            transform-origin: 50% 50%;
+            /* Chỉ giữ lại rotate, bỏ translate vì không cần tự căn nữa */
+            transform: rotate(90deg); /* Bỏ translate(-50%, 0%) */
+            
+            /* * 3. TĂNG KÍCH THƯỚC * */
+            font-size: 65px; /* Tăng từ 50px lên 65px (bạn có thể chỉnh số này) */
+            
+            width: 1em;
+            height: 3em;
+            color: #d31145;
+        }
+
+        /* ----- Các CSS khác giữ nguyên ----- */
+        
+        .ajax-loader .paw {
+            width: 1em;
+            height: 1em;
+            -webkit-animation: 3500ms pawAnimation ease-in-out infinite;
+            animation: 3500ms pawAnimation ease-in-out infinite;
+            opacity: 0;
+        }
+
+        .ajax-loader .paw svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .ajax-loader .paw .icon {
+            fill: currentColor;
+        }
+
+        .ajax-loader .paw:nth-child(odd) {
+            transform: rotate(-10deg);
+        }
+
+        .ajax-loader .paw:nth-child(even) {
+            transform: rotate(10deg) translate(125%, 0);
+        }
+        
+        .ajax-loader .paw:nth-child(1) {
+            -webkit-animation-delay: 2.0s;
+            animation-delay: 2.0s;
+        }
+        .ajax-loader .paw:nth-child(2) {
+            -webkit-animation-delay: 1.6s;
+            animation-delay: 1.6s;
+        }
+        .ajax-loader .paw:nth-child(3) {
+            -webkit-animation-delay: 1.2s;
+            animation-delay: 1.2s;
+        }
+        .ajax-loader .paw:nth-child(4) {
+            -webkit-animation-delay: 0.8s;
+            animation-delay: 0.8s;
+        }
+        .ajax-loader .paw:nth-child(5) {
+            -webkit-animation-delay: 0.4s;
+            animation-delay: 0.4s;
+        }
+        .ajax-loader .paw:nth-child(6) {
+            -webkit-animation-delay: 0s;
+            animation-delay: 0s;
+        }
+        
+        .no-cssanimations .ajax-loader .paw {
+            opacity: 1;
+        }
+
+        @-webkit-keyframes pawAnimation {
+            0% { opacity: 1; }
+            50% { opacity: 0; }
+            100% { opacity: 0; }
+        }
+
+        @keyframes pawAnimation {
+            0% { opacity: 1; }
+            50% { opacity: 0; }
+            100% { opacity: 0; }
+        }
+        
+        /* CSS cho nội dung trang (để demo) */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            line-height: 1.6;
+        }
+        
+        .content {
+            padding: 2rem;
+            max-width: 800px;
+            margin: 2rem auto;
+            background: #fff;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <svg id="svg-sprite">
+        <symbol id="paw" viewBox="0 0 249 209.32">
+            <ellipse cx="27.917" cy="106.333" stroke-width="0" rx="27.917" ry="35.833" />
+            <ellipse cx="84.75" cy="47.749" stroke-width="0" rx="34.75" ry="47.751" />
+            <ellipse cx="162" cy="47.749" stroke-width="0" rx="34.75" ry="47.751" />
+            <ellipse cx="221.083" cy="106.333" stroke-width="0" rx="27.917" ry="35.833" />
+            <path stroke-width="0" d="M43.98 165.39s9.76-63.072 76.838-64.574c0 0 71.082-6.758 83.096 70.33 0 0 2.586 19.855-12.54 31.855 0 0-15.75 17.75-43.75-6.25 0 0-7.124-8.374-24.624-7.874 0 0-12.75-.125-21.5 6.625 0 0-16.375 18.376-37.75 12.75 0 0-28.29-7.72-19.77-42.86z" />
+        </symbol>
+    </svg>
+
+    <div id="preloader">
+        <div class="ajax-loader">
+            <div class="paw"><svg class="icon"><use xlink:href="#paw" /></svg></div>
+            <div class="paw"><svg class="icon"><use xlink:href="#paw" /></svg></div>
+            <div class="paw"><svg class="icon"><use xlink:href="#paw" /></svg></div>
+            <div class="paw"><svg class="icon"><use xlink:href="#paw" /></svg></div>
+            <div class="paw"><svg class="icon"><use xlink:href="#paw" /></svg></div>
+            <div class="paw"><svg class="icon"><use xlink:href="#paw" /></svg></div>
+        </div>
+    </div>
+
+    <div class="content">
+        <h1>Nội dung trang web 🐾</h1>
+        <p>Đây là nội dung chính của trang. Nó chỉ hiển thị sau khi preloader (dấu chân mèo) đã chạy xong.</p>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+    </div>
+
+    <script>
+        window.addEventListener('load', function() {
+            var preloader = document.getElementById('preloader');
+            var minDisplayTime = 3000; // 3 giây
+
+            setTimeout(function() {
+                preloader.style.opacity = '0';
+                
+                setTimeout(function() {
+                    preloader.style.display = 'none';
+                }, 500); // Khớp với transition trong CSS
+
+            }, minDisplayTime);
+        });
+    </script>
+
+</body>
+</html>
