@@ -17,6 +17,7 @@
             --blue: #25f4ee;
             --dark: #000000;
             --text: #ffffff;
+            --gold: #ffd700;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -126,6 +127,21 @@
         
         /* Ẩn nếu lỗi */
         .hidden-slide { display: none !important; }
+
+        /* --- QUẢNG CÁO CSS --- */
+        .ad-badge {
+            background: rgba(255, 255, 255, 0.2); padding: 2px 6px; border-radius: 4px;
+            font-size: 10px; text-transform: uppercase; font-weight: 700; margin-left: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.5); color: #ddd; vertical-align: middle;
+        }
+        
+        .cta-btn {
+            background: var(--primary); color: white; padding: 10px 20px;
+            border-radius: 4px; font-weight: 700; text-decoration: none;
+            display: inline-block; margin-top: 10px; animation: pulse 2s infinite;
+            box-shadow: 0 4px 15px rgba(254, 44, 85, 0.4); font-size: 14px;
+        }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
     </style>
 </head>
 <body>
@@ -137,8 +153,8 @@
 
     <!-- NAVIGATION -->
     <div class="nav-bot">
-       <a href= index.html> <i class="fas fa-home text-white text-xl"></i></a>
-         <a href= news.html><i class="fas fa-search text-gray-500 text-xl"></i></a>
+        <a href="index.html"> <i class="fas fa-home text-white text-xl"></i></a>
+        <a href="news.html"><i class="fas fa-search text-gray-500 text-xl"></i></a>
         <div class="nav-add-btn"><i class="fas fa-plus text-black font-bold"></i></div>
         <i class="fas fa-comment-dots text-gray-500 text-xl"></i>
         <i class="fas fa-user text-gray-500 text-xl"></i>
@@ -149,17 +165,29 @@
         const CONFIG = {
             // 1. Cấu hình Video
             videos: {
-                total: 51,           // Số lượng video (1.mp4 -> 150.mp4)
+                total: 86,           // Số lượng video (1.mp4 -> 150.mp4)
                 folder: 'Videos',     // Tên thư mục chứa video
                 ext: '.mp4'           // Đuôi file (.mp4 hoặc .MOV)
             },
             // 2. Cấu hình Ảnh
             photos: {
-                total: 26,           // Số lượng ảnh (1.jpg -> 150.jpg)
+                total: 32,           // Số lượng ảnh (1.jpg -> 150.jpg)
                 folder: 'Photos',     // Tên thư mục chứa ảnh
                 ext: '.jpg'           // Đuôi file (.jpg, .png...)
+            }, // <-- CHÚ Ý DẤU PHẨY Ở ĐÂY ĐỂ NGĂN CÁCH
+
+            // 3. CẤU HÌNH QUẢNG CÁO (Mới)
+            ads: {
+                enable: true,  // Bật/Tắt quảng cáo
+                image: 'Ads/Ads.png', // Link ảnh banner quảng cáo (có thể dùng ảnh trong máy)
+                link: 'https://www.fphotography.club', // Link khi bấm vào
+                title: 'FPC CLUB XẢ HÀNG ÁO VÀ DÂY ĐEO THẺ TÊN',
+                desc: 'Giảm giá 50% chỉ hôm nay. Mua ngay kẻo lỡ!',
+                cta: 'Mua Ngay', // Chữ trên nút
+                frequency: 10 // Cứ 8 video/ảnh thì chèn 1 quảng cáo
             }
         };
+        
 
         const FAKE_DB = {
             users: ["khiet_k5a8", "dangcapnhat_lop", "minh_khiem_k5a8", "camera_chay_bang_com", "tri_nhan_ngu_dot"],
@@ -171,7 +199,7 @@
 
         function init() {
             let mediaList = [];
-
+            
             // 1. Tạo danh sách Video
             for (let i = 1; i <= CONFIG.videos.total; i++) {
                 mediaList.push({
@@ -193,6 +221,21 @@
             // 3. Xáo trộn ngẫu nhiên Video và Ảnh với nhau
             mediaList.sort(() => Math.random() - 0.5);
 
+            // CHÈN QUẢNG CÁO VÀO LIST
+            if (CONFIG.ads.enable) {
+                let newList = [];
+                let counter = 0;
+                mediaList.forEach(item => {
+                    newList.push(item);
+                    counter++;
+                    // Cứ đủ số lượng frequency thì chèn 1 cái quảng cáo
+                    if (counter % CONFIG.ads.frequency === 0) {
+                        newList.push({ type: 'ad', id: `ad_${counter}` });
+                    }
+                });
+                mediaList = newList;
+            }
+
             // 4. Hiển thị
             mediaList.forEach(item => {
                 createSlide(item);
@@ -203,18 +246,31 @@
         }
 
         function createSlide(item) {
-            // Random dữ liệu
-            const user = FAKE_DB.users[Math.floor(Math.random() * FAKE_DB.users.length)];
-            const caption = FAKE_DB.captions[Math.floor(Math.random() * FAKE_DB.captions.length)];
-            const likes = Math.floor(Math.random() * 2000) + 100;
-
             const div = document.createElement('div');
             div.className = 'media-item';
 
-            // HTML nội dung (Khác nhau giữa Ảnh và Video)
             let mediaHTML = '';
             
-            if (item.type === 'video') {
+            // --- XỬ LÝ NỘI DUNG ---
+            if (item.type === 'ad') {
+                // GIAO DIỆN QUẢNG CÁO
+                mediaHTML = `
+                    <div class="blur-bg" style="background-image: url('${CONFIG.ads.image}')"></div>
+                    <img class="main-media" src="${CONFIG.ads.image}" style="object-fit: cover;">
+                    <div class="overlay-layer" style="background: linear-gradient(0deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0) 60%);"></div>
+                    
+                    <div class="info-area">
+                        <span class="user-tag">
+                            ${CONFIG.ads.title} <span class="ad-badge">Được tài trợ</span>
+                        </span>
+                        <p class="caption">${CONFIG.ads.desc}</p>
+                        <a href="${CONFIG.ads.link}" target="_blank" class="cta-btn">
+                            ${CONFIG.ads.cta} <i class="fas fa-shopping-cart" style="margin-left:5px"></i>
+                        </a>
+                    </div>
+                `;
+            } 
+            else if (item.type === 'video') {
                 mediaHTML = `
                     <div class="loader"></div>
                     <video loop playsinline preload="none" onerror="this.closest('.media-item').classList.add('hidden-slide')">
@@ -229,20 +285,24 @@
                 `;
             }
 
-            div.innerHTML = `
+            // Nội dung chung (Overlay, Sidebar...)
+            let commonHTML = `
                 ${mediaHTML}
+                
+                <!-- Chỉ hiện các nút tương tác nếu KHÔNG phải quảng cáo (hoặc tùy ý bạn) -->
+                ${item.type !== 'ad' ? `
                 <div class="overlay-layer"></div>
-
+                
                 <div class="info-area">
-                    <span class="user-tag">@${user}</span>
-                    <p class="caption">${caption}</p>
+                    <span class="user-tag">@${FAKE_DB.users[Math.floor(Math.random() * FAKE_DB.users.length)]}</span>
+                    <p class="caption">${FAKE_DB.captions[Math.floor(Math.random() * FAKE_DB.captions.length)]}</p>
                     <div class="music-tag"><i class="fas fa-music"></i> ${FAKE_DB.music}</div>
                 </div>
 
                 <div class="sidebar">
                     <div class="action-btn" onclick="toggleLike(this)">
                         <div class="icon-circle"><i class="fas fa-heart"></i></div>
-                        <span class="count">${likes}</span>
+                        <span class="count">${Math.floor(Math.random() * 2000) + 100}</span>
                     </div>
                     <div class="action-btn">
                         <div class="icon-circle"><i class="fas fa-comment-dots"></i></div>
@@ -255,38 +315,50 @@
                     <div class="disc-wrapper">
                         <div class="disc"><i class="fas fa-compact-disc text-white"></i></div>
                     </div>
-                </div>
+                </div>` : ''}
             `;
-
-            // Thêm sự kiện Click
-            const overlay = div.querySelector('.overlay-layer');
-            const likeBtn = div.querySelector('.action-btn');
             
-            let lastTap = 0;
-            overlay.addEventListener('click', (e) => {
-                const currentTime = new Date().getTime();
-                const tapLength = currentTime - lastTap;
+            // Nếu là quảng cáo thì HTML đã full trong block if, nếu không thì ghép commonHTML vào
+            if (item.type !== 'ad') {
+                 div.innerHTML = commonHTML;
+            } else {
+                 div.innerHTML = mediaHTML; // Quảng cáo có HTML riêng
+            }
+
+
+            // Thêm sự kiện Click (Chỉ cho video/ảnh thường)
+            if (item.type !== 'ad') {
+                const overlay = div.querySelector('.overlay-layer');
+                const likeBtn = div.querySelector('.action-btn');
                 
-                if (tapLength < 300 && tapLength > 0) {
-                    // Double Tap -> Like
-                    toggleLike(likeBtn, true);
-                    createHeartEffect(e.clientX, e.clientY);
-                } else {
-                    // Single Tap -> Play/Pause (Chỉ áp dụng cho Video)
-                    if (item.type === 'video') {
-                        const video = div.querySelector('video');
-                        const playIcon = div.querySelector('.center-play');
-                        if (video.paused) {
-                            video.play();
-                            playIcon.style.display = 'none';
+                let lastTap = 0;
+                if (overlay) {
+                    overlay.addEventListener('click', (e) => {
+                        const currentTime = new Date().getTime();
+                        const tapLength = currentTime - lastTap;
+                        
+                        if (tapLength < 300 && tapLength > 0) {
+                            // Double Tap -> Like
+                            toggleLike(likeBtn, true);
+                            createHeartEffect(e.clientX, e.clientY);
                         } else {
-                            video.pause();
-                            playIcon.style.display = 'block';
+                            // Single Tap -> Play/Pause (Chỉ áp dụng cho Video)
+                            if (item.type === 'video') {
+                                const video = div.querySelector('video');
+                                const playIcon = div.querySelector('.center-play');
+                                if (video.paused) {
+                                    video.play();
+                                    playIcon.style.display = 'none';
+                                } else {
+                                    video.pause();
+                                    playIcon.style.display = 'block';
+                                }
+                            }
                         }
-                    }
+                        lastTap = currentTime;
+                    });
                 }
-                lastTap = currentTime;
-            });
+            }
 
             feed.appendChild(div);
         }
